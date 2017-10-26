@@ -1,7 +1,236 @@
-\chapter{Generative models for text generation}\label{gen}
+\chapter{Generative models for text}\label{gen}
 
+
+\section{RNN}
+
+Recurrent Neural Network is a family of neural network specialized in sequential data $\vect{x}_1, \dots, \vect{x}_\tau$. As a neural network, a RNN is a parametrized function that we use to approximate one hidden function from the data. As before we can take the simplest RNN as a neural network with only one hidden layer. But now, what make RNNs unique is a recurrent definition of one of its hidden layer:
+
+\begin{equation}
+\vect{h}^{(t)} = g(\vect{h}^{(t-1)}, \vect{x}^{(t)}; \vect{\theta})
+\end{equation}
+
+$\vect{h}^{(t)}$ is called \textit{state}, \textit{hidden state}, or \textbf{cell}.
+
+Is costumerely to represent a RNN as a ciclic graph \ref{RNNSimplified}
 
 \input{tikzfiles/RNNSimplified}
+
+\par This recurrent equation can be unfolded for a finite number of steps $\tau$. For example, when $\tau =3$:
+\vspace{0.2cm}
+
+\begin{align}
+\vect{h}^{(3)}& = g(\vect{h}^{(2)}, \vect{x}^{(3)}; \vect{\theta})\\
+ & = g(g(\vect{h}^{(1)}, \vect{x}^{(2)}; \vect{\theta}), \vect{x}^{(3)}; \vect{\theta})\\
+ & = g(g(g(\vect{h}^{(0)}, \vect{x}^{(1)}; \vect{\theta}), \vect{x}^{(2)}; \vect{\theta}), \vect{x}^{(3)}; \vect{\theta})\\
+\end{align}
+
+
+
+Hence for any finite step $\tau$ we can describe the model as a DAG \ref{RNNSimplifiedUnfolded}.
+
+\input{tikzfiles/RNNSimplifiedUnfolded}
+
+Using a concret example consider the following model define by the equations:
+
+\begin{equation}
+f(\vect{x}^{(t)}, \vect{h}^{(t-1)}; \vect{V}, \vect{W}, \vect{U}, \vect{c}, \vect{b}) = \vect{\hat{y}}^{(t)}
+\end{equation}
+ \vspace{0.2cm}
+\begin{equation}
+\vect{\hat{y}}^{(t)} = softmax(\vect{V} \vect{h}^{(t)} + \vect{c})
+\end{equation}
+\vspace{0.2cm}
+ \begin{equation}
+\vect{h}^{(t)} = g(\vect{h}^{(t-1)}, \vect{x}^{(t)}; \vect{W},\vect{U}, \vect{b})
+\end{equation}
+\vspace{0.2cm}
+\begin{equation}
+\vect{h}^{(t)} = \sigma(\vect{W} \vect{h}^{(t-1)} + \vect{U} \vect{x}^{(t)} + \vect{b})
+\end{equation}
+
+Using the graphical representation the model can be view as:
+
+\input{tikzfiles/RNNGraphExpanded} 
+
+!!! explicar como funciona o treinamento !!!
+
+An RNN with a loss function:
+
+\input{tikzfiles/rnn-time-unfolding}
+
+
+\section{GRU}
+
+
+
+\section{LSTM}
+
+
+
+\section{Language model}
+
+We call \textit{language model} a probability distribution over sequences of tokens in a natural language.
+
+\[
+P(x_1,x_2,x_3,x_4) = p
+\]
+
+This model is used for different nlp tasks such as speech recognition, machine translation, text auto-completion, spell correction, question answering, summarization and many others.
+
+The classical approuch to a languange model was to use the chain rule and a markovian assumptiom, i.e., for a specific $n$ we assume that:
+
+\begin{equation}
+P(x_1, \dots, x_T) = \prod_{t=1}^{T} P(x_t \vert x_1, \dots, x_{t-1}) = \prod_{t=1}^{T} P(x_{t} \vert x_{t - (n+1)}, \dots, x_{t-1})
+\end{equation} 
+
+
+This gave raise to models based on $n$-gram statistics. The choice of $n$ yields different models; for example 
+\textit{Unigram} language model ($n=1$): 
+\begin{equation}
+P_{uni}(x_1, x_2, x_3, x_4) = P(x_1)P(x_2)P(x_3)P(x_4)
+\end{equation}
+
+where $P(x_i) = count(x_i)$.\\
+
+\textit{Bigram} language model ($n=2$): 
+\begin{equation}
+P_{bi}(x_1,x_2,x_3,x_4) = P(x_1)P(x_2\vert x_1)P(x_3\vert x_2)P(x_4\vert x_3)
+\end{equation} 
+where
+\[
+P(x_i\vert x_j) = \frac{count(x_i, x_j)}{count(x_j)}
+\]
+
+
+Higher $n$-grams yields better performance. But at the same time higher $n$-grams requires a lot of memory\cite{Heafield}.
+
+Since \cite{Mikolov11} the approach has change, instead of using one approach that is specific for the language domain, we can use a general model for sequential data prediction: a RNN.
+
+So, our learning task is to estimate the probability distribution 
+
+\[
+P(x_{n} = \text{word}_{j^{*}} | x_{1}, \dots ,x_{n-1})
+\]
+
+for any $(n-1)$-sequence of words $x_{1}, \dots ,x_{n-1}$.
+
+We start with a corpus $C$ with $T$ tokens and a vocabulary $\Vocab$.\\\
+
+Example: \textbf{Make Some Noise} by the Beastie Boys.\\
+
+\begin{quote}
+Yes, here we go again, give you more, nothing lesser\\
+Back on the mic is the anti-depressor\\
+Ad-Rock, the pressure, yes, we need this\\
+The best is yet to come, and yes, believe this\\
+... \\
+\end{quote}
+
+\begin{itemize}
+\item $T = 378$
+\item $|\Vocab| = 186$
+\end{itemize}
+
+
+The dataset is a collection of pairs $(\vect{x},\vect{y})$ where $\vect{x}$ is one word and $\vect{y}$ is the immediately next word. For example:
+\begin{itemize}
+\item [] $(\vect{x}^{(1)}, \vect{y}^{(1)}) =$ (Yes, here).
+\item [] $(\vect{x}^{(2)}, \vect{y}^{(2)}) =$ (here, we)
+\item [] $(\vect{x}^{(3)}, \vect{y}^{(3)}) =$ (we, go)
+\item [] $(\vect{x}^{(4)}, \vect{y}^{(4)}) =$ (go, again)
+\item [] $(\vect{x}^{(5)}, \vect{y}^{(5)}) =$ (again, give)
+\item [] $(\vect{x}^{(6)}, \vect{y}^{(6)}) =$ (give, you)
+\item [] $(\vect{x}^{(7)}, \vect{y}^{(7)}) =$ (you, more)
+\item [] $\dots$
+\end{itemize}
+
+Notation
+
+\begin{itemize}
+\item $\vect{E} \in \mathbb{R}^{d,|\Vocab|}$ is the matrix of word embeddings.
+\vspace{0.3cm}
+\item $\vect{x}^{(t)} \in \mathbb{R}^{|\Vocab|}$ is one-hot word vector at time step $t$.
+\vspace{0.3cm}
+\item $\vect{y}^{(t)} \in \mathbb{R}^{|\Vocab|}$ is the ground truth at time step $t$ (also an one-hot word vector).
+\end{itemize}
+
+The language model is similar as the RNN described above. It is defined by the following equations:
+
+\begin{equation}
+\vect{e}^{(t)} = \vect{E}\vect{x}^{(t)}
+\end{equation}
+\vspace{0.2cm}
+ \begin{equation}
+\vect{h}^{(t)} = \sigma(\vect{W}\vect{h}^{(t-1)}+ \vect{U}\vect{e}^{(t)}+ \vect{b})
+\end{equation}
+\vspace{0.2cm}
+\begin{equation}
+\vect{\hat{y}}^{(t)} = softmax(\vect{V}\vect{h}^{(t)} + \vect{c})
+\end{equation}
+
+\input{tikzfiles/LanguageModelExpanded}
+
+
+At each time $t$ the point-wise loss is:
+
+\vspace{0.2cm}
+
+\begin{align}
+L^{(t)} &= CE(\vect{y}^{(t)},\vect{\hat{y}}^{(t)})\\
+    &= - \log(\vect{\hat{y}}_{j^{*}})\\
+        &= - \log P(x^{(t+1)} = \text{word}_{j^{*}}|x^{(1)}, \dots, x^{(t)})
+\end{align}
+
+The loss $L$ is the mean of all the point-wise losses
+\begin{equation}
+L=\frac{1}{T}\sum_{t=1}^{T}L^{(t)}
+\end{equation}
+
+
+Evaluating a language model. We can evaluate a  language model using a \textit{extrinsic evaluation}: How our model perform in a NLP task such as text auto-completion. Or a \textit{intrinsic evaluation}: Perplexity (PP) can be thought as the weighted average branching factor of a language.
+
+
+Given $C= x_1, x_2, \dots, x_T$, we define the perplexity of $C$ as:
+
+\begin{align}
+PP(C) &= P(x_1, x_2, \dots, x_T)^{-\frac{1}{T}}\\
+    & \\
+      &= \sqrt[T]{\frac{1}{P(x_1, x_2, \dots, x_T)}}\\
+      & \\
+      &= \sqrt[T]{\prod_{i=1}^{T}\frac{1}{P(x_i \vert x_1,\dots, x_{i-1})}}
+\end{align}
+
+we can relate Loss and Perplexity:
+
+Since
+\begin{align}
+L^{(t)} & = - \log P(x^{(t+1)} |x^{(1)}, \dots, x^{(t)})\\
+& =  \log(\frac{1}{P(x^{(t+1)}|x^{(1)}, \dots, x^{(t)})})\\
+\end{align}
+We have that:
+
+\begin{align}
+        L &=\frac{1}{T} \sum_{t=1}^{T} L^{(t)}\\
+          &= \log\left( \sqrt[T]{\prod_{i=1}^{T}\frac{1}{P(x_i \vert x_1,\dots, x_{i-1})}} \right)\\
+          &= \log(PP(C))
+\end{align}
+
+So another definition of perplexity is
+
+\begin{equation}
+2^{L} = PP(C)
+\end{equation}
+
+
+
+
+
+\section{Encoder Decoder}
+
+
+
+\section{Atention}
+
 
 % \input{tikzfiles/LSTM_cell}
 
@@ -18,7 +247,7 @@
 % \input{tikzfiles/RNNGraphExpanded}
 
 
-% \input{tikzfiles/RNNSimplifiedUnfolded}
+
 
 % \input{tikzfiles/rnn-time-unfolding}
 

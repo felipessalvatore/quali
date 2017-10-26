@@ -1,4 +1,5 @@
-\begin{figure}[ht!]
+\begin{figure}[H]
+\label{RNNSimplified}
 \centering
 
 \scalebox{1.40}{
@@ -12,11 +13,12 @@
 
 
 % edges
-\path[tedge] (x) edge node[below right= -4pt] {$\vect{U}$}  (h) ;
-\path[tedge] (h) edge [out=-400,in=-320,looseness=8, distance=125pt] node[above right] {$\vect{W}$} (h);
-\path[tedge] (h) edge node[below right = -4pt] {$\vect{V}$} (yhat);
+\path[tedge] (x) edge node[below right= -4pt] {}  (h) ;
+\path[tedge] (h) edge [out=-400,in=-320,looseness=8, distance=125pt] node[above right] {} (h);
+\path[tedge] (h) edge node[below right = -4pt] {} (yhat);
 
 
 \end{tikzpicture}
 } % scalebox
+\caption{Ciclic representation}
 \end{figure}

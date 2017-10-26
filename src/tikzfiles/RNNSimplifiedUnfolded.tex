@@ -7,11 +7,12 @@
 \node[op, minimum size=40pt, above=30pt of h#3] (yhat#3) {$\hat{\vect{y}}^{#1}$};
 
 % edges
-\path[tedge] (x#3) edge node[below right= -4pt] {$\vect{U}$} (h#3);
-\path[tedge] (h#3) edge node[below right = -4pt] {$\vect{V}$} (yhat#3);
+\path[tedge] (x#3) edge node[below right= -4pt] {} (h#3);
+\path[tedge] (h#3) edge node[below right = -4pt] {} (yhat#3);
 }
 
-\begin{figure}[ht!]
+\begin{figure}[H]
+\label{RNNSimplifiedUnfolded}
 \hspace*{-1.0cm}
 \scalebox{0.9}{
 \begin{tikzpicture}[auto]
@@ -31,11 +32,12 @@
 
 
 % % state transfers
-\path[tedge] (ht0) edge node[above right = 2pt] {$\vect{W}$} (ht1);
-\path[tedge] (ht1) edge node[above right = 2pt] {$\vect{W}$} (ht2);
-\path[tedge] (ht2) edge node[above right = 2pt] {$\vect{W}$} (ht3);
+\path[tedge] (ht0) edge node[above right = 2pt] {} (ht1);
+\path[tedge] (ht1) edge node[above right = 2pt] {} (ht2);
+\path[tedge] (ht2) edge node[above right = 2pt] {} (ht3);
 
 \end{tikzpicture}
 }%\scalebox
+\caption{Unfolded computational graph}
 \end{figure}
 
