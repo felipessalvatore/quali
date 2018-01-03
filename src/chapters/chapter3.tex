@@ -1,9 +1,43 @@
 \chapter{Archictetures for dialog}\label{architectures}
 
+\section{Build End-to-End Dialogue Systems} 
 
-\section{1}
+The strategy in \cite{Serban:2016a} is to train a dialogue system using only a question-answer corpus, i. e., they will train a generative model to generate one utterance when another one is given (and a context is given too). The main supposition is that the response generation problem can be seen as a translation problem. Generate a sentence in a dialogue is just translate the question into a response.
 
-\section{2}
+\par In this setting a dialogue is viewed as a sequence of utterances $D=\langle U_1 , \dots, U_M \rangle$ involving two interlocutors such that each $U_i$ contains a sequence of $N_i$ tokens, $U_i = \langle w_{i,1} , \dots, w_{i,N_{i}} \rangle$. Each $w_{i,j}$ is a random variable that taking values in the $V\cup A$ where $V$ is the vocabulary and $A$ is the set of \textit{speech acts} (for example 'pause' and 'end of turn' are  speech acts). In this case the learning task is the same as the one in language modeling: we want to estimate of the probability of one token (speech acts included) conditioned on the previously tokens:
+
+\begin{equation}
+P(w_{i,j} | w_{i,1}, \dots , w_{i,j-1}, U_{1}, \dots U_{i-1})
+\end{equation}
+
+The different dialogues $\langle U_1 , \dots, U_M \rangle$ will serve as a corpus.
+In this paper the authors use a \textbf{Hierarchical Recurrent Encoder-Decoder model(HRED)}, i.e., a model based on three RNNs: an \textit{encoder} RNN, a \textit{context} RNN and a \textit{decoder} RNN.  To understand the workings of this model, suppose we have the following dialog:
+\begin{itemize}
+\item ($U_1$) Mom, I don't feel so good.\\
+\item ($U_2$) What's wrong?\\
+\item ($U_3$) I feel like I'm going to pass out.
+\end{itemize}
+
+First the encoder RNN will encode the sentence $U_1$ in a vector $\vect{U}_1$, then the context RNN will compute a hidden state, say $\vect{C_1}$ using $\vect{U}_1$ and all past sentences in the dialog. After that the decoder RNN will use $U_2$ as an input to predict the next word using $\vect{C_1}$. The same procedure is repeated for $U_2$. Figure
+x shows the computational graph of this process.
+
+\begin{figure}[ht!]
+\label{HRED}
+\includegraphics[width=10cm]{img/HRED_placeholder.png}
+\caption{HRED model}
+\end{figure}
+
+Note that in this model the prediction is conditioned on the hidden state of the context RNN.
+
+In this paper the authors use the world perpelexity from a part of the corpus to evaluate the language model.
+
+The learning is based on maximized the log likelihood of the language model (the parametrized probabilistic distribution), one of the results is that model learn to predict the most frequent utterances like  'I don't know' or 'I'm sorry'.
+
+
+
+\section{Multiresolution Recurrent Neural Networks}
+
+In the paper \cite{Serban:2016b}
 
 \section{3}
 
