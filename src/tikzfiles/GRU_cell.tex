@@ -1,0 +1,64 @@
+\begin{figure}[H]
+\label{GRU}
+\centering
+
+\scalebox{0.45}{
+\begin{tikzpicture}[auto]
+
+% GRU state cell =============================
+\node[state] (h) {$\vect{h}^{(t-1)}$};
+\node[op, below right=25pt and 50pt of h] (affu) {$\text{aff}(\vect{\theta}_{u})$};
+\node[op,right=95pt of affu] (affr) {$\text{aff}(\vect{\theta}_{r})$};
+\node[op,above right= 30pt and 30pt of affr] (r) {$\vect{r}^{(t)}$};
+\node[op,above left=25pt and 10pt of r] (hada1) {$\odot$};
+\node[op,left=35pt of hada1] (aff) {$\text{aff}(\vect{\theta})$};
+\node[op,above=25pt of aff] (htilde) {$\vect{\widetilde{h}}^{(t)}$};
+\node[op,above=25pt of htilde] (hada2) {$\odot$};
+\node[op,above=40pt of affu] (u) {$\vect{u}^{(t)}$};
+\node[op,above=35pt of u] (1minusu) {$1 - \vect{u}^{(t)}$};
+\node[op,above left =35pt and 35pt of 1minusu] (hada3) {$\odot$};
+\node[state,above right=25pt and 30pt of hada2] (hprime) {$\vect{h}^{(t)}$};
+\node[textonly,below right=15pt and 95pt of affu] (inv1) {};
+\node[op,below left=40pt and 40pt of inv1] (x) {$\vect{x}^{(t)}$};
+\node[textonly, left=35pt of h] (inv2) {};
+\node[textonly, right=35pt of hprime] (inv3) {};
+\node[textonly, above=35pt of hprime] (inv4) {};
+\node[textonly, below=2pt of hprime] (name1) {$+$};
+
+% namedscope
+\begin{scope}[on background layer]
+\coordinate (p1) at (hprime.north);
+\coordinate (p2) at (inv1.south);
+\coordinate (p3) at (h.west);
+\tkzCircumCenter(p1,p2,p3)
+\tkzGetPoint{O}
+\tkzDrawCircle[draw=orange, line width=1.5pt, fill=orange!60](O,p1)
+\end{scope}
+
+% % edges
+\path[tedge] (x) to [out=90, in=-90] (affu);
+\path[tedge] (x)to [out=90, in=-90](affr);
+\path[tedge] (x) to [out=90, in=-90](aff);
+\path[tedge] (h) to [out=0] (affu);
+\path[tedge] (h) to (hada3);
+\path[tedge] (h) to [out=0, in=180] (affr);
+\path[tedge] (h) to [out=0, in=-90] (hada1);
+\path[tedge] (affu)edge node[above right= 7pt and -5pt] {$\;\; \Large{\sigma}$} (u);
+\path[tedge] (affr) edge node[above right= - 7pt and -5pt] {$\;\; \Large{\sigma}$} (r);
+\path[tedge] (r)--(hada1);
+\path[tedge] (hada1)--(aff);
+\path[tedge] (aff)edge node[above right= - 7pt and -5pt] {$\;\; \Large{tanh}$}(htilde);
+\path[tedge] (htilde)--(hada2);
+\path[tedge] (hada2)--(hprime);
+\path[tedge] (hada3) to [out=70, in=150] (hprime);
+\path[tedge] (u)--(1minusu);
+\path[tedge] (u)--(hada2);
+\path[tedge] (1minusu)--(hada3);
+\path[tedge] (inv2)--(h);
+\path[tedge] (hprime)--(inv3);
+\path[tedge] (hprime)--(inv4);
+
+\end{tikzpicture}
+} % scalebox
+\caption{GRU hidden cell}
+\end{figure}

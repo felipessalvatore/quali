@@ -63,9 +63,45 @@ An RNN with a loss function:
 \section{GRU}
 
 
+To capture long-term dependencies on a RNN  the authors of the paper \cite{ChungGCB14}  proposed a new architecture called \textbf{gated recurrent unit} (\textbf{GRU}). This model was constructed to make each hidden state  $\vect{h}^{(t)}$ to adaptively capture dependencies of different time steps. It work as follows, at each step $t$ one candidate for hidden state is formed:
+
+\begin{equation}
+\vect{\widetilde{h}}^{(t)} = tahn(\vect{W} (\vect{h}^{(t-1)} \odot  \vect{r}^{(t)}) + \vect{U} \vect{x}^{(t)} + \vect{b})
+\end{equation}
+
+
+where $\vect{r}^{(t)}$ is a vector with values in $[0, 1]$ called a \textbf{reset gate}, i.e.,  a vector that at each entry outputs the probability of reseting the  corresponding entry in the previous hidden state $\vect{h}^{(t-1)}$. Together with $\vect{r}^{(t)}$ we define an \textbf{update gate}, $\vect{u}^{(t)}$. It is also a vector with values in $[0, 1]$. Intuitively we can say that this vector decides how much on each dimension we will use the candidate update. Both $\vect{r}^{(t)}$ and $\vect{u}^{(t)}$ are defined by $\vect{h}^{(t-1)}$ and $\vect{x}^{(t)}$; they also have specific parameters:
+
+\begin{equation}
+\vect{r}^{(t)} = \sigma(\vect{W}_{r} \vect{h}^{(t-1)} + \vect{U}_{r} \vect{x}^{(t)} + \vect{b}_{r})
+\end{equation}
+
+
+\begin{equation}
+\vect{u}^{(t)} = \sigma(\vect{W}_{u} \vect{h}^{(t-1)} + \vect{U}_{u} \vect{x}^{(t)} + \vect{b}_{u})
+\end{equation}
+
+At the end the new hidden state $\vect{h}^{(t)}$ is defined by the recurrence:
+
+\begin{equation}
+\vect{h}^{(t)} = \vect{u}^{(t)} \odot \vect{\widetilde{h}}^{(t)} + (1 - \vect{u}^{(t)}) \odot \vect{h}^{(t-1)} 
+\end{equation}
+
+Note that the new hidden state combines the candidate hidden state $\vect{\widetilde{h}}^{(t)}$ with the past hidden state $\vect{h}^{(t-1)}$ using both $\vect{r}^{(t)}$ and $\vect{u}^{(t)}$ to adaptively copy and forget information.
+
+\par It can appear more complex, but we can view the GRU model just as a refinement of the standard RNN with a new computation for the hidden state. Let $\vect{\theta} = [ \vect{W},\vect{U},\vect{b} ]$, $\vect{\theta}_{u} = [ \vect{W}_{u},\vect{U}_{u},\vect{b}_{u} ]$  and $\vect{\theta}_{r} = [ \vect{W}_{r},\vect{U}_{r},\vect{b}_{r} ]$; and $\text{aff}(\vect{\theta})$ be the following operation:
+
+\begin{equation}
+\text{aff}(\vect{\theta}) = \vect{W} \vect{h} + \vect{U} \vect{x} + \vect{b}
+\end{equation}
+
+With similar definitions for $\text{aff}(\vect{\theta}_{u})$ and $\text{aff}(\vect{\theta}_{r})$. Figure \ref{GRU} shows the hidden state of the GRU model for time step $t$. If compared with Figure \ref{RNNGraphExpanded} we can see that the basic structure is the same, just the way of computing the hidden state $\vect{h}^{(t)}$ has changed.
+
+ \input{tikzfiles/GRU_cell}
 
 \section{LSTM}
 
+% \input{tikzfiles/LSTM_cell}
 
 
 \section{Language model}
