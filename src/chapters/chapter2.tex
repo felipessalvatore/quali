@@ -101,7 +101,40 @@ With similar definitions for $\text{aff}(\vect{\theta}_{u})$ and $\text{aff}(\ve
 
 \section{LSTM}
 
-% \input{tikzfiles/LSTM_cell}
+\textit{Long short-term memory} (LSTM) is one of the most applied versions of the RNN family of models. Historically it was developed before the GRU model, but conceptually we can think in the RNN as an expansion of the model presented in the last session. Because of notation differences they can look different. LSTM is based also with parametrized gates; in this case three: the \textbf{forget gate}, $\vect{f}^{(t)}$, the \textbf{input gate}, $\vect{i}^{(t)}$, and the \textbf{output gate}, $\vect{o}^{(t)}$. There gates are defined only by $\vect{h}^{(t-1)}$ and $\vect{x}^{(t)}$ with specific parameters:
+
+\begin{equation}
+\vect{f}^{(t)} = \sigma(\vect{W}_{f} \vect{h}^{(t-1)} + \vect{U}_{f} \vect{x}^{(t)} + \vect{b}_{f})
+\end{equation}
+
+\begin{equation}
+\vect{i}^{(t)} = \sigma(\vect{W}_{i} \vect{h}^{(t-1)} + \vect{U}_{i} \vect{x}^{(t)} + \vect{b}_{i})
+\end{equation}
+
+\begin{equation}
+\vect{o}^{(t)} = \sigma(\vect{W}_{o} \vect{h}^{(t-1)} + \vect{U}_{o} \vect{x}^{(t)} + \vect{b}_{o})
+\end{equation}
+
+Intuitively $\vect{f}^{(t)}$ should control how much informative be discarded, $\vect{i}^{(t)}$ controls how much information will be updated, and $\vect{o}^{(t)}$ controls how munch each component should be outputted. A candidate cell, $\tilde{\vect{c}}^{(t)}$ is formed:
+
+\begin{equation}
+\tilde{\vect{c}}^{(t)} = tahn(\vect{W} \vect{h}^{(t-1)} + \vect{U} \vect{x}^{(t)} + \vect{b})
+\end{equation}
+
+and a new cell $\tilde{\vect{c}}^{(t)}$ is formed by forgetting some information of the previous cell $\tilde{\vect{c}}^{(t-1)}$ and by adding new values from $\tilde{\vect{c}}^{(t)}$ (scaled by the input gate)
+
+\begin{equation}
+\vect{c}^{(t)} = \vect{f}^{(t)} \otimes \vect{c}^{(t-1)} + \vect{i}^{(t)}\otimes \tilde{\vect{c}}^{(t)}
+\end{equation}
+
+The new hidden state, $\vect{h}^{(t)}$, is formed by filtering $\vect{c}^{(t)}$:
+
+\begin{equation}
+\vect{h}^{(t)} = \vect{o}^{(t)} \otimes tanh(\vect{c}^{(t)})
+\end{equation}
+
+
+\input{tikzfiles/LSTM_cell}
 
 
 \section{Language model}
