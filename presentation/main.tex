@@ -20,8 +20,92 @@
 
 \maketitle
 
-\begin{frame}
-s
+
+\begin{frame}{Sistemas de diálogo}
+ criar um programa capaz de dialogar com ser humano
+\begin{center}
+\includegraphics[scale=0.16]{images/turing.jpg}
+\end{center}
+\end{frame}
+
+
+\begin{frame}{Sistemas de diálogo}
+goal -driven vs non-goal driven
+\end{frame}
+
+
+\begin{frame}{Modelos de linguagem baseados em redes neurais}
+Nos chamamos de \alert{modelo de linguagem} uma distribuição de probabildiade sobre uma sequencia de tokens em uma lingua natural.
+
+\[
+P(x_1,x_2,x_3,x_4) = p
+\]
+
+Em vez de usar uma abordagem que seja específica para o domínio da linguagem natural, podemos usar um modelo para predição de dados sequencias:  \textbf{uma rede recorrente (RNN)}. \\
+
+Nossa tarefa de aprendizado é estimar a distribuição de probabilidade
+
+\[
+P(x_{n} = \text{palavra}_{j^{*}} | x_{1}, \dots ,x_{n-1})
+\]
+
+para qualquer $(n-1)$ sequencia de palavras $x_{1}, \dots ,x_{n-1}$.
+
+\end{frame}
+
+\begin{frame}{O modelo de linguagem com RNN}
+\input{tikzfiles/LanguageModelUnfolded}
+\end{frame}
+
+
+
+\begin{frame}{GRU: Gated Recurrent Units}
+\begin{center}
+\includegraphics[scale=0.25]{images/gru.png}
+\end{center}
+\end{frame}
+
+
+\begin{frame}{LSTM: Long Short Term Memory}
+\begin{center}
+\includegraphics[scale=0.23]{images/lstm.png}
+\end{center}
+\end{frame}
+
+
+\begin{frame}{Exemplo: TrumpBot\\\url{https://github.com/felipessalvatore/MyTwitterBot}}
+\begin{center}
+\includegraphics[scale=0.24]{images/TrumpBot.png}
+\end{center}
+\end{frame}
+
+
+\begin{frame}{Exemplo: Funk Generator\\ \url{https://github.com/lucasmoura/funk_generator}}
+\begin{quote}
+\centering
+É o dj que tá tocando e não sabe de nada\\ 
+Eu já tô no clima e já tô no meu nome \\
+Cordão de ouro no pescoço eu tô na moda \\
+Com a camisa da \\
+Louis \\
+Vuitton \\
+Pulo da morena que elas gosta\\ 
+E se eu te pego no baile \\
+De captiva de citroen ou de hayabusa\\ 
+Tu viu a 1100 cilindradas \\
+Se eu tô no litoral de cordão de ouro\\ 
+De cordão de ouro no pescoço\\
+\end{quote}
+\end{frame}
+
+
+\begin{frame}{Modelos de linguagem baseados em redes neurais}
+
+\end{frame}
+
+
+\begin{frame}{Modelos de linguagem baseados em redes neurais}
+
 \end{frame}
 
 

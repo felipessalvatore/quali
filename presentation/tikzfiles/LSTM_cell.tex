@@ -1,0 +1,72 @@
+\begin{figure}[H]
+\label{LSTM}
+\centering
+
+\scalebox{0.4}{
+\begin{tikzpicture}[auto]
+
+% LSTM state cell =============================
+\node[state] (h) {$\vect{h}^{(t-1)}$};
+\node[op, above right=25pt and 10pt of h] (afff) {$\text{aff}(\vect{\theta}_{f})$};
+\node[op,right=25pt of afff] (affi) {$\text{aff}(\vect{\theta}_{i})$};
+\node[op,right=25pt of affi] (affc) {$\text{aff}(\vect{\theta})$};
+\node[op,right=25pt of affc] (affo) {$\text{aff}(\vect{\theta}_{o})$};
+\node[op,above=20pt of afff] (f) {$\vect{f}$};
+\node[op,above=20pt of affi] (i) {$\vect{i}$};
+\node[op,above=20pt of affc] (tildec) {$\vect{\tilde{c}}$};
+\node[op,above=20pt of affo] (o) {$\vect{o}$};
+\node[op,above=20pt of f] (haddamar1) {$\odot$};
+\node[state, above left=20pt and 20pt of haddamar1] (C) {$\vect{C}^{(t-1)}$};
+\node[op, above right=20pt and 20pt of i] (haddamar2) {$\odot$};
+\node[state,above right=50pt and 20pt of haddamar2] (Cprime) {$\vect{C}^{(t)}$};
+\node[op, below right=20pt and 30pt of Cprime] (tanh) {$tanh$};
+\node[state, above right= 5pt and 50pt of o] (hprime) {$\vect{h}^{(t)}$};
+\node[textonly, below right= 40pt and 100pt of h] (inv1) {};
+\node[op, below=30pt of inv1] (x) {$\vect{x}$};
+\node[textonly, right=160pt of Cprime] (inv2) {};
+\node[textonly, right=40pt of hprime] (inv3) {};
+\node[textonly, above=120pt of hprime] (inv4) {};
+\node[textonly, above left= -14pt and 7pt of hprime] (name1) {$\odot$};
+\node[textonly, above left= -40pt and 7pt of Cprime] (name2) {$+$};
+
+% namedscope
+\begin{scope}[on background layer]
+\coordinate (p1) at (C.north west);
+\coordinate (p2) at (h.south west);
+\coordinate (p3) at (hprime.east);
+\tkzCircumCenter(p1,p2,p3)
+\tkzGetPoint{O}
+\tkzDrawCircle[draw=orange, line width=1.5pt, fill=orange!60](O,p1)
+\end{scope}
+
+% edges
+\path[tedge] (x) to (afff);
+\path[tedge] (x)--(affi);
+\path[tedge] (x)--(affo);
+\path[tedge] (x)--(affc);
+\path[tedge] (h)--(afff);
+\path[tedge] (h) to [out=-10, in=-95, distance=5pt] (affi);
+\path[tedge] (h) to [out=-10, in=-95, distance=5pt] (affo);
+\path[tedge] (h) to [out=-10, in=-95, distance=5pt] (affc);
+\path[tedge] (afff) edge node[below right= -7pt] {$\;\; \Large{\sigma}$}  (f);
+\path[tedge] (affi) edge node[below right= -7pt] {$\;\; \Large{\sigma}$}  (i);
+\path[tedge] (affc) edge node[below right= -7pt] {$\;\; \Large{tanh}$}  (tildec);
+\path[tedge] (affo) edge node[below right= -7pt] {$\;\; \Large{\sigma}$}  (o);
+\path[tedge] (f)--(haddamar1);
+\path[tedge] (haddamar1)--(Cprime);
+\path[tedge] (C)--(haddamar1);
+\path[tedge] (i)--(haddamar2);
+\path[tedge] (tildec)--(haddamar2);
+\path[tedge] (Cprime)--(tanh);
+\path[tedge] (haddamar2)--(Cprime);
+\path[tedge] (tanh)--(hprime);
+\path[tedge] (tanh)--(hprime);
+\path[tedge] (o)--(hprime);
+\path[tedge] (Cprime)--(inv2);
+\path[tedge] (hprime)--(inv3);
+\path[tedge] (hprime)--(inv4);
+
+
+\end{tikzpicture}
+} % scalebox
+\end{figure}
