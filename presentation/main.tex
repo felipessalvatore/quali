@@ -15,7 +15,6 @@
 \input{header}
 
 \begin{document}
-\nocite{DeepLearningbook}
 
 
 \maketitle
@@ -33,6 +32,7 @@
 goal -driven vs non-goal driven
 \end{frame}
 
+\section{Sistemas de diálogo baseados em redes neurais}
 
 \begin{frame}{Modelos de linguagem baseados em redes neurais}
 Nos chamamos de \alert{modelo de linguagem} uma distribuição de probabildiade sobre uma sequencia de tokens em uma lingua natural.
@@ -66,11 +66,11 @@ para qualquer $(n-1)$ sequencia de palavras $x_{1}, \dots ,x_{n-1}$.
 \end{frame}
 
 
-\begin{frame}{LSTM: Long Short Term Memory}
-\begin{center}
-\includegraphics[scale=0.23]{images/lstm.png}
-\end{center}
-\end{frame}
+% \begin{frame}{LSTM: Long Short Term Memory}
+% \begin{center}
+% \includegraphics[scale=0.23]{images/lstm.png}
+% \end{center}
+% \end{frame}
 
 
 \begin{frame}{Exemplo: TrumpBot\\\url{https://github.com/felipessalvatore/MyTwitterBot}}
@@ -98,15 +98,78 @@ De cordão de ouro no pescoço\\
 \end{quote}
 \end{frame}
 
+\begin{frame}{Seq2seq: diálogo \cite{DBLP:journals/corr/VinyalsL15}}
+\input{tikzfiles/seq2seq_dialog}
+\end{frame}
 
-\begin{frame}{Modelos de linguagem baseados em redes neurais}
+
+\begin{frame}{Seq2seq: tradução \cite{luzfinger2017}}
+\input{tikzfiles/Translation}
+\end{frame}
+
+\begin{frame}{Exemplo de diálogo \cite{DBLP:journals/corr/VinyalsL15}}
+\begin{center}
+\includegraphics[scale=0.3]{images/exemplo1.png}
+\end{center}
+\end{frame}
+
+
+\section{Métricas}
+
+
+\begin{frame}{Avaliação humana \cite{Lowe:2016}}
+\begin{center}
+\includegraphics[scale=0.4]{images/exemploEval1.png}
+\end{center}
+\end{frame}
+
+
+
+
+\begin{frame}{Avaliação automática: BLEU \cite{Papineni2001}}
+Essa métrica compara n-gramas (até 4) da resposta candidata com os n-gramas da refência da tradução e conta o numero de acertos. Essa métrica também penaliza traudções muito curtas:
+
+\begin{equation}
+BLUE(r, \hat{r}) = min \left(1, \frac{len(\hat{r})}{len(r)} \right) \left(\prod_{n=1}^{4} precision_{n}(r, \hat{r}) \right)^{\frac{1}{4}}
+\end{equation}
+em que $ precision_{n}(r, \hat{r})$ é o número de overlap de $n$ gramas de $r$ e $\hat{r}$ dividido pelo número de todos os $n$-gramas de $\hat{r}$. 
+
+$BLUE(r, \hat{r}) \in [0,1]$
 
 \end{frame}
 
 
-\begin{frame}{Modelos de linguagem baseados em redes neurais}
+\begin{frame}{Avaliação automática: problemas}
+\begin{center}
+\includegraphics[scale=0.23]{images/weak_corr.png}
+\end{center}
+
+"In particular, we show that these metrics (BLEU, METEOR, ROUGE) have only a small positive correlation on the chitchat oriented Twitter dataset, and no correlation at all on the technical Ubuntu Dialogue Corpus." \cite{LiuLSNCP16}
 
 \end{frame}
+
+\section{De diálogos abertos para pequenas tarefas}
+
+\begin{frame}{bAbI}
+
+\end{frame}
+
+
+\section{Entailment-QA}
+
+\begin{frame}{SICK}
+
+\end{frame}
+
+\begin{frame}{quora}
+
+\end{frame}
+
+\begin{frame}{first results}
+
+\end{frame}
+
+
 
 
 \begin{frame}[allowframebreaks]{Referências}
