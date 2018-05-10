@@ -20,8 +20,7 @@
 \maketitle
 
 
-\begin{frame}{Sistemas de diálogo}
- criar um programa capaz de dialogar com ser humano
+\begin{frame}{Geração de diálogo}
 \begin{center}
 \includegraphics[scale=0.16]{images/turing.jpg}
 \end{center}
@@ -29,7 +28,23 @@
 
 
 \begin{frame}{Sistemas de diálogo}
-goal -driven vs non-goal driven
+\begin{itemize}
+\item \alert{Goal-driven systems}:
+\begin{itemize}
+\item serviços de suporte técnico
+\item marketing      
+\item sistemas de reserva
+\item sistemas de informação
+\end{itemize}
+
+\vspace{0.4cm}
+\item \alert{Non-goal-driven systems}
+\begin{itemize}
+\item Conversas livres (sem fim específico)
+\end{itemize}
+\end{itemize}
+
+
 \end{frame}
 
 \section{Sistemas de diálogo baseados em redes neurais}
@@ -220,7 +235,7 @@ $c^{1}$ is a $P^{1}$\\
 $c^{2}$ is a $P^{2}$\\
 $c^{3}$ is a $P^{3}$\\
 $c^{4}$ is a $P^{4}$\\
-What is $c^j$ afraid of?\\
+What is $c^j$ afraid of? \alert{A: $Q^j$}\\
 \end{quote}
 
 
@@ -245,17 +260,42 @@ $c^{3}$ is $C^{3}$\\
 $c^{4}$ is a $P^{4}$\\
 $c^{4}$ is $C^{4}$\\
 $c$ is a $P^{j}$\\
-What color is $c$?\\
+What color is $c$? \alert{A: $C^j$}\\
 \end{quote}
 
 \end{frame}
 
 
-\begin{frame}{SICK}
+\begin{frame}{SICK (Sentences Involving Compositional Knowledge) \cite{Marelli14}}
+
+\begin{center}
+\includegraphics[scale=0.25]{images/sick.png}
+\end{center}
 
 \end{frame}
 
-\begin{frame}{quora}
+\begin{frame}{Quora question pairs \cite{quora}}
+
+
+Who creates bitcoins?\\
+Who invented Bitcoin?\\
+Are the above questions duplicate? \alert{A: no}\\
+
+
+How aeroplanes fly?\\
+How do airplanes fly?\\
+Are the above questions duplicate? \alert{A: yes}\\
+
+
+
+What actually is brexit?\\
+What is brexit?\\
+Are the above questions duplicate? \alert{A: yes}\\
+
+
+hat is my ethnicity?\\
+What does ethnicity mean?\\
+Are the above questions duplicate? \alert{A: no}\\
 
 \end{frame}
 
@@ -285,14 +325,39 @@ What color is $c$?\\
 \end{center}
 \end{frame}
 
-\begin{frame}{SICK como melhorar}
+\begin{frame}{Podemos melhorar os resultados para as tarefas específicas}
+
+\begin{center}
+\includegraphics[scale=0.21]{images/features_sick.png}
+\end{center}
+
+Por exemplo, em \cite{S14-2055} os autores conseguiram $84.6\%$ de accurácia no SICK.\\
+
+\alert{Mas não queremos "tunar" um modelo para uma tarefa específica!} 
 
 \end{frame}
 
 
-\begin{frame}{Entailment-QA}
-comentar o sick
+\begin{frame}{Olhando as perguntas geradas pelo SICK}
 
+The parrot is talking into the microphone\\
+The parrot is speaking\\
+What is the semantic relation? \alert{A: entailment}\\
+
+
+There is no man cutting tomatoes\\
+A man is cutting tomatoes\\
+What is the semantic relation? \alert{A: contradiction}\\
+
+
+Paper is being cut with scissors\\
+Someone is cutting some paper with scissors\\
+What is the semantic relation? \alert{A: entailment}\\
+
+
+An elder man is sitting on a bench and is angry\\
+An elderly man is sitting on a bench\\
+What is the semantic relation? \alert{A: entailment}\\
 \end{frame}
 
 
@@ -300,10 +365,15 @@ comentar o sick
 
 \begin{enumerate}
 \item \textbf{Boolean Connectives}
+\item[]
 \item \textbf{First-Order Quantifiers}
+\item[]
 \item \textbf{Synonymy}
+\item[]
 \item \textbf{Antinomy}
+\item[]
 \item \textbf{Hypernymy}
+\item[]
 \item \textbf{Active/Passive voice}
 \end{enumerate}
 \end{frame}
@@ -318,7 +388,7 @@ comentar o sick
 \end{itemize}
 
 \vspace{0.4cm}
-\item \alert{Not entailment} ($s_1$ does not implies $s_2$)
+\item \alert{Not entailment} ($s_1$ does not imply $s_2$)
 \begin{itemize}
 \item $\underbrace{P^{j}a^j}_{s_1}, \underbrace{P^{1}a^1 \land \dots \land P^{n}a^n}_{s_2}$ 
 \item $\underbrace{P^{1}a^1 \lor \dots \lor P^{n}a^n}_{s_1}, \underbrace{P^{j}a^j}_{s_2}$
