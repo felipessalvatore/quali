@@ -126,7 +126,7 @@ De cordão de ouro no pescoço\\
 
 
 
-\begin{frame}{Avaliação automática: BLEU \cite{Papineni2001}}
+\begin{frame}{Avaliação automática: BLEU (bilingual evaluation understudy) \cite{Papineni2001}}
 Essa métrica compara n-gramas (até 4) da resposta candidata com os n-gramas da refência da tradução e conta o numero de acertos. Essa métrica também penaliza traudções muito curtas:
 
 \begin{equation}
@@ -150,12 +150,106 @@ $BLUE(r, \hat{r}) \in [0,1]$
 
 \section{De diálogos abertos para pequenas tarefas}
 
-\begin{frame}{bAbI}
+\begin{frame}{bAbI \cite{WestonBCM15}}
+Criar uma série de pequenas tarefas para testar diferentes capacidades de um sistema de diálogo.
+
+
+\begin{center}
+\includegraphics[scale=0.25]{images/babi.png}
+\end{center}
+\end{frame}
+
+\begin{frame}{modelo de atenção}
 
 \end{frame}
 
 
+\begin{frame}{modelo de memória}
+
+\end{frame}
+
+\begin{frame}{ParlAI \\ \url{https://github.com/facebookresearch/ParlAI}}
+
+\begin{center}
+\includegraphics[scale=0.84]{images/parlai.png}
+\end{center}
+
+"ParlAI (pronounced 'par-lay') is a framework for dialog AI research, implemented in Python.
+
+Its goal is to provide researchers:
+
+\begin{itemize}
+\item a unified framework for sharing, training and testing dialog models
+\item many popular datasets available all in one place, with the ability to multi-task over them
+\item seamless integration of Amazon Mechanical Turk for data collection and human evaluation"
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Experimentos}
+\begin{center}
+\includegraphics[scale=0.34]{images/comparative_results_babi1.png}
+\end{center}
+\end{frame}
+
+\begin{frame}{Experimentos}
+\begin{center}
+\includegraphics[scale=0.34]{images/comparative_results_babi2.png}
+\end{center}
+\end{frame}
+
+
+
+
 \section{Entailment-QA}
+
+\begin{frame}{bAbI: task 15}
+
+\alert{Basic Deduction}
+
+\begin{center}
+\includegraphics[scale=0.28]{images/babi15.png}
+\end{center}
+\begin{quote} 
+\centering 
+$P^{1}$ are afraid of $Q^{1}$\\
+$P^{2}$ are afraid of $Q^{2}$\\
+$P^{3}$ are afraid of $Q^{3}$\\
+$P^{4}$ are afraid of $Q^{4}$\\
+$c^{1}$ is a $P^{1}$\\
+$c^{2}$ is a $P^{2}$\\
+$c^{3}$ is a $P^{3}$\\
+$c^{4}$ is a $P^{4}$\\
+What is $c^j$ afraid of?\\
+\end{quote}
+
+
+\end{frame}
+
+
+\begin{frame}{bAbI: task 16}
+
+\alert{Basic Induction}
+
+\begin{center}
+\includegraphics[scale=0.28]{images/babi16.png}
+\end{center}
+\begin{quote} 
+\centering 
+$c^{1}$ is a $P^{1}$\\
+$c^{1}$ is $C^{1}$\\
+$c^{2}$ is a $P^{2}$\\
+$c^{2}$ is $C^{2}$\\
+$c^{3}$ is a $P^{3}$\\
+$c^{3}$ is $C^{3}$\\
+$c^{4}$ is a $P^{4}$\\
+$c^{4}$ is $C^{4}$\\
+$c$ is a $P^{j}$\\
+What color is $c$?\\
+\end{quote}
+
+\end{frame}
+
 
 \begin{frame}{SICK}
 
@@ -165,12 +259,180 @@ $BLUE(r, \hat{r}) \in [0,1]$
 
 \end{frame}
 
-\begin{frame}{first results}
+
+\begin{frame}{DialogGym}
+
+\begin{center}
+\includegraphics[scale=0.58]{images/DGred2.png}
+\end{center}
+
+\url{https://github.com/felipessalvatore/DialogGym}
 
 \end{frame}
 
 
+\begin{frame}{Um novo conjunto de tarefas}
+\begin{itemize}
+\item \textbf{Task 1: entailment prediction} Given two sentences $p$ and $q$ the agent is asked to detect a basic entailment relation between them, i.e., the agent should respond if $p$ implies $q$, if $p$ contradicts $q$ or if $p$ is neutral to $q$. For example, the sentences "\textit{A man is thinking}" and "\textit{There is no man thinking}" is given to the agent, he needs to detect the quantifier to spot the contradiction between these two informations.
+\item \textbf{Task 2: similarity prediction} The agent is questioned to indicate how related are the meaning of two sentences, e.g., "\textit{A man is reading the email. Someone is reading the email. Are the sentences above related?}". There are only 4 possible answers: "not related", "somewhat related", "related", "strongly related". 
+\item \textbf{Task 3: paraphrase prediction} The agent is asked (a yes/no question) to identify if two given questions express the same meaning using different words, e.g., "\textit{Who was Pele? Who is Pele? Are the above questions duplicate?}".
+\end{itemize}
+\end{frame}
 
+\begin{frame}{Primeiros resultados}
+\begin{center}
+\includegraphics[scale=0.28]{images/both_semantic_tasks.png}
+\end{center}
+\end{frame}
+
+\begin{frame}{SICK como melhorar}
+
+\end{frame}
+
+
+\begin{frame}{Entailment-QA}
+comentar o sick
+
+\end{frame}
+
+
+\begin{frame}{Entailment-QA}
+
+\begin{enumerate}
+\item \textbf{Boolean Connectives}
+\item \textbf{First-Order Quantifiers}
+\item \textbf{Synonymy}
+\item \textbf{Antinomy}
+\item \textbf{Hypernymy}
+\item \textbf{Active/Passive voice}
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{Entailment-QA: task 1}
+\begin{itemize}
+\item \alert{Entailment} ($s_1$ implies $s_2$)
+\begin{itemize}
+\item $\underbrace{P^{1}a^1 \land \dots \land P^{n}a^n}_{s_1}, \underbrace{P^{j}a^j}_{s_2}$ 
+\item $\underbrace{P^{j}a^j}_{s_1}, \underbrace{P^{1}a^1 \lor \dots \lor P^{n}a^n}_{s_2}$
+\item $\underbrace{Pa}_{s_1}, \underbrace{\lnot \lnot Pa}_{s_2}$
+\end{itemize}
+
+\vspace{0.4cm}
+\item \alert{Not entailment} ($s_1$ does not implies $s_2$)
+\begin{itemize}
+\item $\underbrace{P^{j}a^j}_{s_1}, \underbrace{P^{1}a^1 \land \dots \land P^{n}a^n}_{s_2}$ 
+\item $\underbrace{P^{1}a^1 \lor \dots \lor P^{n}a^n}_{s_1}, \underbrace{P^{j}a^j}_{s_2}$
+\item $\underbrace{Pa}_{s_1}, \underbrace{\lnot Pa}_{s_2}$
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Entailment-QA: task 1}
+\begin{itemize} 
+\item[] Ashley is fit
+\item[] Ashley is not fit
+\item[] The first sentence implies the second sentence? \alert{A: no}
+\end{itemize}
+
+\vspace{0.3cm}
+
+
+\begin{itemize} 
+\item[]Avery is nice and Avery is obedient
+\item[]Avery is nice
+\item[]The first sentence implies the second sentence? \alert{A: yes}
+\end{itemize}
+
+\vspace{0.3cm}
+
+\begin{itemize} 
+\item[]Elbert is handsome or Elbert is long
+\item[]Elbert is handsome
+\item[]The first sentence implies the second sentence? \alert{A: no}
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Entailment-QA: task 2}
+
+\begin{itemize}
+\item \alert{Entailment}
+\begin{itemize}
+\item $\forall x Px, Pa$ 
+\item $Pa, \exists x Px$ 
+\end{itemize}
+\item \alert{Contradiction}
+\begin{itemize}
+\item $\forall x Px, \lnot Pa$ 
+\item $\forall x Px, \exists x \lnot Px$ 
+\end{itemize}
+\item \alert{Neutral}
+\begin{itemize}
+\item $Pa,Qa$ 
+\item $\forall x Px, \lnot Qa$ 
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Entailment-QA: task 2}
+
+\begin{itemize} 
+\item[] Every person is lively
+\item[] Belden is lively
+\item[] What is the semantic relation? \alert{A: entailment}
+\end{itemize}
+
+\begin{itemize} 
+\item[] Every person is short
+\item[] There is one person that is not short
+\item[] What is the semantic relation?  \alert{A: contradiction}
+\end{itemize}
+
+\begin{itemize} 
+\item[] Every person is beautiful
+\item[] Abilene is not blue
+\item[] What is the semantic relation? \alert{A: neutral}
+\end{itemize}
+\end{frame}
+
+
+
+\begin{frame}{Resultados até agora}
+\begin{center}
+\includegraphics[scale=0.42]{images/comparative_results.png}
+\end{center}
+\end{frame}
+
+
+
+\begin{frame}{Resultados até agora}
+\begin{center}
+\includegraphics[scale=0.28]{images/training_acc_EntailQA2_mem.png}
+\end{center}
+\end{frame}
+
+
+\begin{frame}{Resultados até agora}
+\begin{center}
+\includegraphics[scale=0.42]{images/cm_mem_EntailQA2.png}
+\end{center}
+\end{frame}
+
+
+\begin{frame}{Próximos passos}
+\begin{itemize}
+
+\item Terminar as tarefas
+
+\item Melhor o treinamento com os modelos atuais
+
+\item Explorar novos modelos
+\end{itemize}
+
+
+\end{frame}
 
 \begin{frame}[allowframebreaks]{Referências}
 
