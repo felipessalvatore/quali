@@ -142,14 +142,16 @@ De cordão de ouro no pescoço\\
 
 
 \begin{frame}{Avaliação automática: BLEU (bilingual evaluation understudy) \cite{Papineni2001}}
-Essa métrica compara n-gramas (até 4) da resposta candidata com os n-gramas da refência da tradução e conta o numero de acertos. Essa métrica também penaliza traudções muito curtas:
+Essa métrica compara n-gramas (até 4) da resposta candidata com os n-gramas da refência da tradução e conta o numero de acertos. Essa métrica também penaliza traduções muito curtas:
 
-\begin{equation}
+\begin{equation*}
 BLUE(r, \hat{r}) = min \left(1, \frac{len(\hat{r})}{len(r)} \right) \left(\prod_{n=1}^{4} precision_{n}(r, \hat{r}) \right)^{\frac{1}{4}}
-\end{equation}
+\end{equation*}
 em que $ precision_{n}(r, \hat{r})$ é o número de overlap de $n$ gramas de $r$ e $\hat{r}$ dividido pelo número de todos os $n$-gramas de $\hat{r}$. 
 
-$BLUE(r, \hat{r}) \in [0,1]$
+\begin{itemize}
+\item $BLUE(r, \hat{r}) \in [0,1]$
+\end{itemize}
 
 \end{frame}
 
@@ -174,13 +176,100 @@ Criar uma série de pequenas tarefas para testar diferentes capacidades de um si
 \end{center}
 \end{frame}
 
-\begin{frame}{modelo de atenção}
+\begin{frame}{Seq2seq}
+\begin{itemize}
+\item $\vect{x}_1, \dots, \vect{x}_n$ sentença de entrada (source)
+\item $\vect{y}_1, \dots, \vect{y}_m$ sentença de saida (target)
+\item $\vect{s} = f_{enc}(\vect{x}_n, \vect{h}_{n-1})$ representação  até a entrada $\vect{x}_n$
+\begin{itemize}
+\item $\vect{h}_0$ iniciado aleatoriamemnte
+\item $\vect{h}_n = \vect{s}$  
+\end{itemize}
+\item $\vect{h}^{\prime}_j = f_{dec}(\vect{y}_j, \vect{h}^{\prime}_{j-1})$ representação saida no instante $j$
+\begin{itemize}
+\item $\vect{h}^{\prime}_0 = \vect{s}$
+\end{itemize}
 
+\item $p(y_j | y_1, \dots, y_{j-1}, x_1, \dots, x_{n}) = softmax(\vect{W}_{s}  \vect{h}^{\prime}_j + \vect{b}_s)$
+
+\item $\hat{y}_j = \argmax p(y_j | y_1, \dots, y_{j-1}, x_1, \dots, x_{n})$
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Seq2seq}
+\input{tikzfiles/seq2seq_dialog}
 \end{frame}
 
 
-\begin{frame}{modelo de memória}
+\begin{frame}{Modelo de atenção}
+ No modelo de atenção vamos contruir um vetor de contexto $\vect{c}_t$ para selecionar as informações na sentença de entrada.\\
+ Uma vez costruido $\vect{c}_t$, definimos um estado de atenção
 
+\begin{equation*}
+\vect{\tilde{h}}_t = tahn(\vect{W}_c[\vect{c}_t;\vect{h}_t])
+\end{equation*}
+
+
+ e geramos a predição
+
+\begin{equation*}
+p(y_t | y_1, \dots, y_{t-1}, x_1, \dots, x_{n}) = softmax(\vect{W}_{s}  \vect{\tilde{h}}_t + \vect{b}_s)
+\end{equation*}
+\end{frame}
+
+
+\begin{frame}{Como definimos $\vect{c}_t$?}
+Construimos uma matrix de alinhamento $a$ tal que
+
+\begin{itemize}
+\item $a_{ts}$ é a probabilidade da representação de entrada $\vect{h}_s$ ser relevante para a saída $\hat{y}_t$.
+\item[]
+\item $a_{ts} = \frac{exp(score(\vect{\tilde{h}}_t,\vect{h}_s))}{\sum_j exp(score(\vect{\tilde{h}}_t,\vect{h}_j))}$ 
+
+\item $score(\vect{\tilde{h}}_t,\vect{h}_s) = \begin{cases}
+\vect{\tilde{h}}_t ^{\top}\vect{h}_s\\
+\vect{\tilde{h}}_t ^{\top}\vect{W}_a \vect{h}_s\\
+\vect{v}_a ^{\top}tahn(\vect{W}_a[\vect{\tilde{h}}_t;\vect{h}_s])\\
+\end{cases}$ 
+\item[]
+\item $\vect{c}_t$ é uma soma ponderada de todas as representações de entrada: 
+\begin{equation*}
+\vect{c}_t = \sum_{s=1}^{n} a_{ts}\vect{h}_s
+\end{equation*}
+\end{itemize}
+\end{frame}
+
+
+
+\begin{frame}{Modelo de memória}
+\begin{itemize}
+\item $\vect{s}_1, \dots, \vect{s}_n$ sentenças de contexto
+\item $\vect{q}$ pergunta
+\item $\vect{a}$ resposta
+\item $\{ \vect{s}_i\} \rightarrow^{\vect{A}} \{ \vect{m}_i\}$  (vetores de memôria)
+\item $\vect{q} \rightarrow^{\vect{B}} \vect{u}$  (estado interno)
+\item $\{ p_i\} = \{ softmax(\vect{u}^{T}\vect{m}_i)\}$  ("match" entre $\vect{m}_i$ e $\vect{u}$)
+\item $\{ \vect{s}_i\} \rightarrow^{\vect{C}} \{ \vect{c}_i\}$
+\item $\vect{o}= \sum_{i} p_i \vect{c}_i$
+\item $\vect{\hat{a}}= softmax(\vect{W}(\vect{o} + \vect{u}))$
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{ Podemos ter $k$ camadas e memória (hops)}
+\begin{itemize}
+\item $\vect{u}^{k} = \vect{u}^{k-1} + \vect{o}^{k-1}$
+\item[]
+\item $\{ {\vect{s}^{k}}_i\} \rightarrow^{{vect{A}^{k}}} \{ {\vect{m}^{k}}_i\}$
+\item[]
+\item $\{ {\vect{s}^{k}}_i\} \rightarrow^{{vect{C}^{k}}} \{ {\vect{c}^{k}}_i\}$
+\item[]
+\item $\{{p^{k}}_i\} = \{ softmax({\vect{u}^{k}}^{\top} {\vect{m}^{k}_{i}})\}$
+\item[]
+\item $\vect{o}^{k}= \sum_{i} {p^{k}}_i {\vect{c}^{k}}_i$
+\item[]
+\item $\vect{\hat{a}}= softmax(\vect{W}(\vect{o}^{k} + \vect{u}^{k}))$
+\end{itemize}
 \end{frame}
 
 \begin{frame}{ParlAI \\ \url{https://github.com/facebookresearch/ParlAI}}
