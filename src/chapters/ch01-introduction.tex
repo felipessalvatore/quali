@@ -1,7 +1,64 @@
 \chapter{Introduction}
 \label{ch:01-introduction}
 
-dsdfsffd \cite{Sustskever}
+
+\section{Old quali introduction}
+
+
+In this PhD thesis we will investigate the problem of \textbf{building a non-task-oriented dialog system}. This problem is central to the field of \textit{artificial intelligence} (AI) due to the seminal paper by Alan Turing \cite{Turing} in which he proposed an imitation game. The idea behind the game was simple: three players A, B and C can interact only by nonpersonal communication. C knows that he will interact with a computer (A) and a person (B), but he does not know which is which. C should exchange some conversation both with A and B; after some time he should guess who is the computer and who is the human. The goal of A is to be as human as possible in order to fool C; and the goal of B is to help C come to the right answer.
+
+\par This is the famous \textit{Turing Test}. At that time Turing proposed that test as a way to make more concrete the philosophical question "can machines think?". This can lead to a whole discussion of the nature of thinking and intelligence. As a mature field, AI has distantiate itself from these abstract an general questions and have concentrated in \textit{building agents to solve tasks reserved exclusively to humans}: playing chess, driving a car, cleaning a room, writing a letter to a friend, etc.    
+
+\par The sub-area of AI that deals with problems involving human language is called \textit{natural language processing} (NLP). It concentrate in tasks such text understanding (por mais coisa). NLP , as the field of AI as a whole, have change dramatically in the past 10 years. For some time the main paradigm in the field was the so called \textbf{knowledge base approach}: the main goal of AI was to develop intelligent systems capable of solving certain classes of problems by having a \textit{representation} or \textit{model} of the world. In this view, a decision by a machine is synonymous to \textit{inferring in a formal language}\cite{McCarthy}.
+
+
+\par A different point of view is that AI should construct systems that acquire their knowledge via data observation. 
+More useful than programming hand-coded rules in an AI agent, we should enable that agent to extract patters from the complexity of data. This is the \textbf{machine learning approach}. One extension of this view is called \textbf{deep learning} where we learn i) how to map a representation of the data to a desirable output and ii) how to represent the data.
+
+\par After this brief presentation we can state our objectives more clearly: here we will investigate how to build a non-task-oriented dialog system using a deep learning family of models. This family of models is know as \textbf{Recurrent Neural Networks} (RNNs). RNNs have achieve increasing success in a variety of NLP tasks such as machine translation, speech recognition, sentiment analysis, language modeling, etc. Together with this success the community has proposed also a variety of new architectures. We will explore some of these architectures for the task of dialog generation.
+
+
+
+
+\subsection{Theoretical framework}
+
+\subsection{Machine learning}
+
+
+In particular for NLP it is usual to encode a linguistic feature as a dense vector. Linguistic features tent to be discrete entities (a word, a part-of-speech tag, etc.). So for some time the basic tool in the field was the use of 'one-hot vectors', i.e, a vector with only one entry being $1$ and all the rest being $0$. In this case each feature is its own dimension. The problem with that approach is that features become completely independent from one another. After the popularization of embeddings techniques \cite{Mikolov23} nowadays we let a model learn the best representation of a linguistic feature in some feature space in order to capture some correlation by the data.
+
+
+\subsection{Neural network}
+
+
+A neural network is a non-linear function $f(\vect{x}; \theta)$. It is defined by a collection of parameters $\vect{\theta}$ and a collection of non-linear transformations. It is usual to represent $f$ as a compositions of functions:
+
+\begin{align}
+f(\vect{x}; \theta) &= f^{(2)}(f^{(1)}(\vect{x}; \vect{W}_1, \vect{b}_1); \vect{W}_2, \vect{b}_2)\\
+&= softmax(\vect{W}_2 (\sigma(\vect{W}_1\vect{x} + \vect{b}_1)) + \vect{b}_2)
+\end{align}
+
+
+The output of these intermediary functions are referred as \textit{layers}. So in the example above, $\vect{x}$ (the output of the identity function) is the \textit{input layer}, $f^{(1)}(\vect{x}; \vect{W}_1, \vect{b}_1)$ is the \textit{hidden layer} and $f^{(2)}(f^{(1)}(\vect{x}; \vect{W}_1, \vect{b}_1); \vect{W}_2, \vect{b}_2)$ is the \textit{output layer}. Since each layer is a vector, we normally speak about the \textit{dimension} of a layer. For historical reasons we also say that each entry on a layer is a \textit{node} or a \textit{neuron}.  Models with a large number of hidden layers are called \textit{deep models}, for this reason the name \textit{deep learning} is used.  
+
+\par A neural network is a function approximator: it can approximate any Borel measurable function from one finite dimensional space to another with any desired nonzero amount of error. This theoretical result is know as the \textit{universal approximation theorem}\cite{Cybenko}. Without entering in the theoretical concepts, it suffice to note that the family of Borel mensurable functions include all continuous functions on a closed and bounded subset of $\mathbb{R}^n$.
+
+
+\par One thing to be noted is that the universal approximation theorem states that a neural network with at last one hidden layer with any 'squashing' activation function (such as the logistic sigmoid activation function) can be used to approximate the desired function. So it is natural to question why should anybody use a neural network with more than one hidden layer. The answer is that the theorem does not guarantee that a training algorithm will find the correct function generating on the data that we use for the training. Also a neural network with only one layer can use a hidden size of large dimension to represent one function, when a deep model can have more layers but with significantly smaller dimension. The main result in \cite{Telgarsky} makes this problem clear: for every positive integer $k$, there exist neural networks with $\Theta(k^3)$ layers, $\Theta(1)$ nodes per layer, and $\Theta(1)$ distinct parameters which can not be approximated by networks with $\mathcal{O}(k)$ layers and $o(2^k)$ nodes.  
+
+\begin{quote}
+Any time we choose a specific machine learning algorithm, we are implicitly stating some set of prior beliefs we have about what kind of function the algorithm should learn. Choosing a deep model encodes a very general belief that the function we want to learn should involve composition of several simpler functions. This can be interpreted from a representation learning point as saying that we believe the learning problem consist of discovering a set of underlying factors of variation that van in turn be described in terms of other, simpler underlying factors of variation. Alternately, we can interpret  the use of a deep architecture as expressing a belief that the function we want to learn id a computer program consisting of multiple steps, where each step makes use of the previous step's output. These intermediate outputs are not necessarily factors of variation but can instead be analogous to counters or pointers that the network uses to organize its internal processing.\cite[p.~195]{DeepLearningbook}.
+\end{quote}
+
+
+\section{Intuit introduction}
+
+
+One of the main goals in Natural Language Processing is to build agents capable of \textit{understanding language and reasoning}, i.e., agents capable of carrying a conversation as if they were human. This goal is as old as the field of \textit{artificial intelligence} itself \cite{Turing}, and it is a very ambitious one. A smart research strategy is to break this problem in smaller versions of itself. So nowadays we divide dialog systems in two categories: \textit{goal-driven systems} and \textit{non-goal-driven systems}; the former includes \textit{chatbots}, normally used in the industry for technical support services or information acquisition; the latter is a term used to refer to any conversational agent with no explicit purpose.
+
+Although non-goal-driven systems may seen interesting for its comprehensiveness, it presents a central problem: \textit{there is no good quantitative metric to compare non-goal-driven agents} \cite{LiuLSNCP16, LoweSNCP16}. A more fruitful approach is the one from the goal-driven systems literature: developed a series of synthetic tasks in the form of question answering (QA) to test different capabilities of the competing models \cite{BordesW16, Hixon15, WestonBCM15}. Each task tries to assert one prerequisite to full language understanding.
+
+Here we propose to expand the work done in \cite{BordesW16, WestonBCM15} by \textit{adding new testbeds for complex semantic relationships}: \textbf{Entailment-QA}. The motivation behind this expansion is to guarantee that an end-to-end machine learning model can perform \textit{complex linguistic inferences}. We focus on two kind of inferences: the ones defined by \textit{logical operators} and others defined by \textit{word knowledge}.
 % ------------------------------------------------------------------------
 \section{Motivation}
 \label{sec:motivation}

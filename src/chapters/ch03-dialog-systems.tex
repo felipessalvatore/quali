@@ -1,4 +1,263 @@
 \chapter{Dialog Systems}
 \label{ch:03-dialog-systems}
 
-"Language is good" - ludwig witgenstein
+\section{How to evaluate dialogs?}
+\label{ch:03-eval}
+
+
+\subsubsection{BLUE}
+This metric was proposed in \cite{Papineni2001} for automatic translation. It compares n-grams (up to 4) of the candidate translation with the n-grams of the reference translation and count the number of matches; it also ads brevity penalty for too short translations. The formula for this metrics is:
+
+\begin{equation}
+BLUE = min \left(1, \frac{output-length}{reference-lenght} \right) \left(\prod_{n=1}^{4} precision_{n} \right)^{\frac{1}{4}}
+\end{equation}
+
+Where $precision_{n}$ is number of $n$-gram overlap between the candidate and the reference divided by the number of all $n$-grams in the candidate. BLUE scores ranges from $0$ to $1$. Typically this score is computed over an entire corpus and was originally designed for use with multiple reference sentences. To give one simple example we will use the following Portuguese sentence:
+
+\begin{center}
+`em plano aberto, a cidade parece linda'
+\end{center}
+
+The reference translation is
+
+\begin{center}
+`in a wide shot, the city looks beautiful'
+\end{center}
+
+Now consider two candidates:
+
+\begin{center}
+$c_1$: `in the open, the city looks beautiful'\\
+$c_2$: `in open plan, the city looks gorgeous'\\
+\end{center}
+
+\begin{figure}
+\label{bluetable}
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline
+\cellcolor{blue!10} Metric& \cellcolor{blue!10} $c_1$ & \cellcolor{blue!10} $c_2$ \\ \hline
+\cellcolor{blue!10} $precision_1$& $5/7$ & $4/7$ \\ \hline
+\cellcolor{blue!10} $precision_2$& $3/6$ & $2/6$  \\ \hline
+\cellcolor{blue!10} $precision_3$& $2/5$ & $1/5$  \\ \hline
+\cellcolor{blue!10} $precision_4$& $1/4$ & $0/4$  \\ \hline
+\cellcolor{blue!10} brevity penalty& $7/8$ & $7/8$  \\ \hline
+\cellcolor{blue!10} $BLUE$& $0.38$ & $0$ \\ \hline
+\end{tabular}
+\end{center}
+\end{figure}
+
+
+Table \ref{bluetable} shows the precision for each $n$-gram (up to $4$) and the BLUE score for each candidate.
+
+
+\section{Entailment-QA}
+\label{ch:03-EQA}
+
+An intelligent agent should distinguish between \textit{meaningful} and \textit{nonsensical} speech. To do that the agent can make use of background knowledge, but it can also point out \textit{gaps in the speech's rationality}. Logic is the study of reasoning. Over the time it became a complex discipline with its own concepts, tools and language. Here we will use some logical notions like \textit{entailment} and \textit{contradiction} to build a set of synthetic tasks. All tasks presented are focused on the distinction between \textit{sound} and \textit{unsound} speech. The difference between tasks resides in the use of certain semantic structures.
+
+In \cite{WestonBCM15}, among a variety of useful tasks the authors introduce two tasks that deals with logical inference: \textit{basic deduction} and \textit{basic induction}. The basic deduction task offers questions of the form:
+
+\begin{quote} 
+\centering 
+$P^{1}$ are afraid of $Q^{1}$\\
+$P^{2}$ are afraid of $Q^{2}$\\
+$P^{3}$ are afraid of $Q^{3}$\\
+$P^{4}$ are afraid of $Q^{4}$\\
+$c^{1}$ is a $P^{1}$\\
+$c^{2}$ is a $P^{2}$\\
+$c^{3}$ is a $P^{3}$\\
+$c^{4}$ is a $P^{4}$\\
+What is $c^j$ afraid of? A: $P^{j}$\\
+\end{quote}
+
+where $P^j$ and $Q^j$ are animals (e.g., "cats", "mice", "wolfs", etc.) and $c^j$ are names (e.g., "Jessica", "Gertrud", "Emily", etc.). The underlying relation under focus here is the \textit{membership} relation: if Emily is a cat and cats are afraid of wolfs then Emily is afraid of wolfs. This task is solvable by the current models, in \cite{WestonBCM15} the best accuracy for this task is $100\%$. 
+
+The basic induction task is composed by questions of the form:
+
+\begin{quote} 
+\centering 
+$c^{1}$ is a $P^{1}$\\
+$c^{1}$ is $C^{1}$\\
+$c^{2}$ is a $P^{2}$\\
+$c^{2}$ is $C^{2}$\\
+$c^{3}$ is a $P^{3}$\\
+$c^{3}$ is $C^{3}$\\
+$c^{4}$ is a $P^{4}$\\
+$c^{4}$ is $C^{4}$\\
+$c$ is a $P^{j}$\\
+What color is $c$? A: $C^{j}$\\
+\end{quote}
+
+Where $P^{j}$ is a animal, $C^{j}$ is a color, and $c^{j}$ is a name. Here the agent is asked to remember the relation between animal and color, and when presented a new name of an animal in the example, the agent should infer the color using past examples. Similar to the deduction task, in \cite{WestonBCM15} is reported that this task is completely solved.
+
+These two tasks present a first step towards \textit{a complete set of tasks to tests inference capabilities}. One aspect that is missing though is the use of logical operators such as \textit{boolean connectives} and \textit{first-order quantifiers}. Those operators play a big role on everyday speech, hence a natural way of expanding this work is by creating a set of tasks that make agents learn \textit{valid logic structures}.
+
+To highlight the speech structure we will make use of an artificial language, but, to be clear, this is just an exposition tool. We are concerned in logical structures \textit{only used in everyday speech}.
+
+\textbf{Boolean Connectives} The first task is focused only on some propositional connectives $\land$ (and), $\lor$ (or), $\lnot$ (not). The agent is given two sentences $s_1$ and $s_2$, and he is asked if $s_1$ entails $s_2$ or not (a yes/no question). The position of the sentences is important here. We look at only six general cases:
+
+\begin{itemize}
+\item Entailment
+\begin{itemize}
+\item $\underbrace{P^{1}a^1 \land \dots \land P^{n}a^n}_{s_1}, \underbrace{P^{j}a^j}_{s_2}$ 
+\item[]
+\item $\underbrace{P^{j}a^j}_{s_1}, \underbrace{P^{1}a^1 \lor \dots \lor P^{n}a^n}_{s_2}$
+\item[]
+\item $\underbrace{Pa}_{s_1}, \underbrace{\lnot \lnot Pa}_{s_2}$
+\end{itemize}
+\item[]
+
+\item Not entailment
+\begin{itemize}
+\item $\underbrace{P^{j}a^j}_{s_1}, \underbrace{P^{1}a^1 \land \dots \land P^{n}a^n}_{s_2}$
+\item[]
+\item $\underbrace{P^{1}a^1 \lor \dots \lor P^{n}a^n}_{s_1}, \underbrace{P^{j}a^j}_{s_2}$
+\item[]
+\item $\underbrace{Pa}_{s_1}, \underbrace{\lnot Pa}_{s_2}$
+\end{itemize}
+\end{itemize}
+
+Where $P$ is a predicate and $a$ is a name. The point here is not to demand that the agent learn complex logical forms, but to recognize which forms are sound and which are not. This should be achieved independently from the content, i.e., the different predicates and names that appear on the sentences. So from the abstract forms above we have only simple examples like:
+
+\begin{itemize} 
+\item[] Ashley is fit
+\item[] Ashley is not fit
+\item[] The first sentence implies the second sentence? A: no
+\end{itemize}
+
+\vspace{0.3cm}
+
+
+\begin{itemize} 
+\item[]Avery is nice and Avery is obedient
+\item[]Avery is nice
+\item[]The first sentence implies the second sentence? A: yes
+\end{itemize}
+
+\vspace{0.3cm}
+
+\begin{itemize} 
+\item[]Elbert is handsome or Elbert is long
+\item[]Elbert is handsome
+\item[]The first sentence implies the second sentence? A: no
+\end{itemize}
+
+\textbf{First-Order Quantifiers} Task 2 tries to capture the use of some basic \textit{quantifiers}. In this dataset we are trying to predict the entailment relationship between two sentences $s_1$ and $s_2$. We say that there is a \textit{entailment} relationship if $s_1$ implies $s_2$, we say that there is a \textit{contradiction} if the combination of sentences $s_1$ and $s_2$ implies an absurdity and if the combination of sentences does not imply an absurdity we say that they are \textit{neutral}. We have used six forms of logical relations for the quantifiers $\forall$ (for every) and $\exists$ (exists):
+
+\begin{itemize}
+\item Entailment
+\begin{itemize}
+\item $\forall x Px, Pa$ 
+\item $Pa, \exists x Px$ 
+\end{itemize}
+\item Contradiction
+\begin{itemize}
+\item $\forall x Px, \lnot Pa$ 
+\item $\forall x Px, \exists x \lnot Px$ 
+\end{itemize}
+\item Neutral
+\begin{itemize}
+\item $Pa,Qa$
+\item $\forall x Px, \lnot Qa$ 
+\end{itemize}
+\end{itemize}
+
+where $P$ and $Q$ are non-related predicates and $a$ is a name. So we have examples like:
+
+\begin{itemize} 
+\item[] Every person is lively
+\item[] Belden is lively
+\item[] What is the semantic relation? A: entailment
+\end{itemize}
+
+\begin{itemize} 
+\item[] Every person is short
+\item[] There is one person that is not short
+\item[] What is the semantic relation?  A: contradiction
+\end{itemize}
+
+\begin{itemize} 
+\item[] Every person is beautiful
+\item[] Abilene is not blue
+\item[] What is the semantic relation? A: neutral
+\end{itemize}
+
+
+The tasks above force the dialog system to predict entailment independently of the specific meaning of nouns, verbs and adjectives presented on speech. To balance that we intend to design four more tasks centered on \textit{generic semantic knowledge}.
+
+\textbf{Synonymy} This task tests if a dialog system can identify paraphrase caused by synonym use. Two supporting facts are presented, the second differs from the first by one noun, verb or adjective that can be a synonym or not, e.g., "\textit{The girl is talking into the microphone. The girl is speaking. Are the above sentences duplicate?}".   
+
+
+\textbf{Antinomy} This task consists of recognizing contradictions by antinomy use. For example, the question "\textit{John is not an old person. John is young. Are the above sentences a contradiction?}" should be answered "no" and the question "\textit{Susan is happy. Susan is sad and she is crying. Are the above sentences a contradiction?}" should be answered "yes".
+
+\textbf{Hypernymy} When one term is a specific instance of another we say that there is a hypernymy relationship between then. For example, we say that "anthem" is a hyponym and "song" a hypernym, because anthem is a kind of song. Task 5 tests the kind of linguistic entailment caused by the use of hyponyms and hypernyms, e.g., "\textit{A woman is eating an apple. A woman is eating a fruit. Are the above sentences duplicate?}"
+
+
+\textbf{Active/Passive voice} Finally the last task is centered on the paraphrases originated by the changes from active to passive voice. So two supporting facts are presented, although they have a different syntactic structure, they share the same meaning. For example,  "\textit{A man is playing the piano. The piano is being played by a man. Are the above sentences duplicate?}".
+
+It should be noted that we can formulate the notion of paraphrase as an entailment relation: if $s_1$ is a paraphrase of $s_2$, it is natural to say that $s_1$ implies $s_2$ and vice-versa. This is done in \cite{Marelli14}. Although this approach presents no problem it can alienate some people from the machine learning community: this community normally deals  with problems of similarity between sentences, there is very little datasets available centered on the notion of entailment. So although we have mentioned only paraphrase detection in tasks 3--6 the entailment relationship is present.
+
+
+\section{Approach}
+\label{ch:03-Approach}
+
+% \cite{BordesW16, Lowe:2016, Serban:2016c, Serban:2016a,Shao:2017,Wen}
+
+We will only consider \textit{neural network based end-to-end dialog systems}, these are the most important models today \cite{BordesW16, Lowe:2016, Serban:2016c, Serban:2016a, Shao:2017, Wen}. To organize all experiment in an unified framework we decided to use the platform ParlAI \cite{MillerFFLBBPW17}. Our criteria for a \textit{semantic robust dialog agent} is not an agent that is only tuned for the Entailment-QA tasks mentioned above, but an agent that performs well across all established tasks (like the bAbI tasks \cite{WestonBCM15}) and performs reasonably on the Entailment-QA tasks 1-6. Here "reasonably" means that the agent should exceed a random agent by a significant margin.
+
+Right now we are in the process of creating the dataset. We have already built tasks 1 (boolean connectives) and 2 (first order quantifiers). They both are composed of 10000 questions for training and 1000 for testing.
+
+We have used the dataset SICK (Sentence Involving Compositional Knowledge) \cite{Marelli14} as a proxy for tasks 3-6, since all the structures presented on those tasks are presented in this dataset. The SICK data is composed of a pairs of sentences and a label describing the entailment relation between the sentences. To cast this classification dataset as a question answering problem we have added a question and maintained the labels: 
+
+\begin{itemize} 
+\item[] A group of people are marching
+\item[] A group of people are walking
+\item[] What is the semantic relation? A: entailment
+\end{itemize}
+
+\begin{itemize} 
+\item[] There is no dog leaping in the air
+\item[] A dog is leaping high in the air and another is watching
+\item[] What is the semantic relation? A: contradiction
+\end{itemize}
+
+\begin{itemize} 
+\item[] A man is exercising
+\item[] A baby is laughing
+\item[] What is the semantic relation? A: neutral
+\end{itemize}
+
+\begin{itemize} 
+\item[] Some dogs are playing in a river
+\item[] Some dogs are playing in a stream
+\item[] What is the semantic relation? A: entailment
+\end{itemize}
+
+This QA task is composed of 23000 questions for training and 5900 for testing.
+
+\section{Preliminary results}
+\label{ch:03-preliminary-results}
+
+We have performed the first experiments using the sequence to sequence model \cite{Sustskever}(with and without attention: Seq2seq and Seq2seqAtt, respectively) and the memory network model (MenNN) \cite{WestonCB14}.
+
+So far these models show unsatisfactory results, as can be seen in Figure 1.
+
+\begin{center}
+\includegraphics[width=10.0cm]{img/comparative_results.png}
+% \captionof{figure}{Test accuracy for the Entailment-QA tasks}
+\end{center}
+
+Their overall performance is only slightly better when compared to the random agent. For example, when we look at the memory model, the model that often  outperform the seq2seq model on QA tasks \cite{WestonBCM15}, we can see that regarding tasks 1 and 2 there is an overfitting problem: the model shows high accuracy on the train dataset (75$\%$ accuracy on task 1, and 86$\%$ accuracy on task 2) as can be seen in Figure 2. But when we take a closer look at the confusion matrix of the test data, Figure 3, the results are not impressive.\footnote{All the experiments and the respective results are available on GitHub: \url{https://github.com/felipessalvatore/DialogGym}.}
+  
+
+\begin{center}
+\includegraphics[width=10.0cm]{img/training_acc_EntailQA_mem.png}
+% \captionof{figure}{Training accuracy for the memory network}
+\end{center}
+
+
+\begin{center}
+\includegraphics[width=10.0cm]{img/cm_mem_EntailQA2.png}
+% \captionof{figure}{Confusion matrix for the memory network on task 2}
+\end{center}
