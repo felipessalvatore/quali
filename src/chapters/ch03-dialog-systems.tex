@@ -5,10 +5,16 @@
 \section{Using neural networks to generate dialog}
 \label{ch:03-gen}
 
+Sequence to sequence models are originally formulated to improve the automatic translation task [ref]. The authors of \cite{DBLP:journals/corr/VinyalsL15} proposed to use this model for generating dialog, and since then the field of dialog generation was revolutionized. As we have seen, a seq2seq model encodes the source sentence in a vector $\vect{h}$ and uses this vector to initiate a language model. 
+
 
 
 \section{How to evaluate dialogs?}
 \label{ch:03-eval}
+
+In the seminal paper by Alan Turing \cite{Turing} it is proposed a game to evaluate a dialog system. The idea behind the game was simple: three players A, B and C can interact only by nonpersonal communication. C knows that he will interact with a dialog system (A) and a person (B), but he does not know which is which. C should exchange some conversation both with A and B; after some time he should guess who is the dialog system and who is the human. The goal of A is to be as human as possible in order to fool C; and the goal of B is to help C come to the right answer.
+
+\par This is the famous \textit{Turing Test}. If the dialog system wins this game we say that \textit{it has passed the Turing Test}. For many people this is the holy grail of artificial intelligence. We disagree with that. [Give your oppion about that]
 
 
 \subsubsection{BLUE}
