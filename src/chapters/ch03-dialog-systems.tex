@@ -5,7 +5,37 @@
 \section{Using neural networks to generate dialog}
 \label{ch:03-gen}
 
-Sequence to sequence models are originally formulated to improve the automatic translation task [ref]. The authors of \cite{DBLP:journals/corr/VinyalsL15} proposed to use this model for generating dialog, and since then the field of dialog generation was revolutionized. As we have seen, a seq2seq model encodes the source sentence in a vector $\vect{h}$ and uses this vector to initiate a language model. 
+Sequence to sequence models are originally formulated to improve the automatic translation task [ref]. The authors of \cite{DBLP:journals/corr/VinyalsL15} proposed to use this model for generating dialog, and since then the field of dialog generation was revolutionized. As we have seen, a seq2seq model encodes the source sentence in a vector $\vect{h}$ and uses this vector to initiate a language model.
+
+This can be used to model a dialog as follows: suposse we have recorded two agents A and B. We will use this dialog as the training data for our model. The model will try to predict how B would respond. Let $\vect{s} = s_1, s_2, \dots, s_n$ be an utterance from A and  $\vect{x} = x_1, x_2, \dots, x_m$ be the response from B (both $\vect{s}$ and $\vect{x}$ are a sequence of words). $\vect{s}$ is input to an encoder network, which is a RNN. The encodes summarizes the input utterance into a vector, say $\vect{h}$, and this vector is used to initiate the decoder model, which is another RNN. And the decoder takes as input $\vect{x}$ and at each time $t$ the model tries to predict the word $t+1$ using $x_1, x_2, ...., x_{t-1}, \vect{h}$. This became a multiclass classification task, and we train the model by minimizing the cross entropy loss.
+
+
+After we training we can use the same model to generate a new dialog: the agent A gives an utterance ans we use the encoder model to summarize this uterance in a vector h as before, but now we use the probability distribution learned by the decoder model (initialized by $\vect{h}$) to sample words until it generates an end-of-speech <eos> token (or until a upper bound for the uterance size is reached). This approach allows for variable length inputs and outputs.
+
+This is the base for more complex models. For example, take the hierarchical recurrent encoder-decoder architecture (HRED) proposed by Sordoni et al. \cite{Serban:2016a}. In this setting a dialogue is viewed as a sequence of utterances $D=\langle U_1 , \dots, U_M \rangle$ involving two interlocutors such that each $U_i$ contains a sequence of $N_i$ tokens, $U_i = \langle w_{i,1} , \dots, w_{i,N_{i}} \rangle$. Each $w_{i,j}$ is a random variable that taking values in the $V\cup A$ where $V$ is the vocabulary and $A$ is the set of \textit{speech acts} (for example 'pause' and 'end of turn' are  speech acts). In this case the learning task is the same as the one in language modeling: we want to estimate of the probability of one token (speech acts included) conditioned on the previously tokens:
+
+\begin{equation}
+P(w_{i,j} | w_{i,1}, \dots , w_{i,j-1}, U_{1}, \dots U_{i-1})
+\end{equation}
+
+The different dialogues $\langle U_1 , \dots, U_M \rangle$ will serve as a corpus.
+In this paper the authors use a \textbf{Hierarchical Recurrent Encoder-Decoder model(HRED)}, i.e., a model based on three RNNs: an \textit{encoder} RNN, a \textit{context} RNN and a \textit{decoder} RNN.  To understand the workings of this model, suppose we have the following dialog:
+\begin{itemize}
+\item ($U_1$) Mom, I don't feel so good.\\
+\item ($U_2$) What's wrong?\\
+\item ($U_3$) I feel like I'm going to pass out.
+\end{itemize}
+
+First the encoder RNN will encode the sentence $U_1$ in a vector $\vect{U}_1$, then the context RNN will compute a hidden state, say $\vect{C_1}$ using $\vect{U}_1$ and all past sentences in the dialog. After that the decoder RNN will use $U_2$ as an input to predict the next word using $\vect{C_1}$. The same procedure is repeated for $U_2$. Figure
+x shows the computational graph of this process.
+
+\begin{figure}[ht!]
+\label{HRED}
+\includegraphics[width=10cm]{img/HRED_placeholder.png}
+\caption{HRED model}
+\end{figure}
+
+Note that in this model the prediction is conditioned on the hidden state of the context RNN.
 
 
 
