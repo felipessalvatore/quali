@@ -50,31 +50,17 @@ In the seminal paper by Alan Turing \cite{Turing} it is proposed a game to evalu
 
 \subsection{Human evaluation}
 
-The most basic form to check if a generated sentence is sound is by using human evaluations. Hence is normal to see researches making use of crowdsourced judges (using APIs like Amazon Mechanical Turk). These judges can say that a generated sentence is just good or bad, in an informal way. But we can also use a more rigorous score system.  
-
-The most basic form to check if the 
-
-from \cite{Stent}  page 2 
-
-In this paper, we will say that a valid variation of a sentence must meet three criteria:
-\textit{adequacy} , or meaning equivalence; \textit{fluency} , or syntactic correctness; and \textit{readability}, or efficacy in context . A sentence that is ambiguous, that does not express all the input meaning, or that communicates meaning not contained in the input, is not adequate. Even if a sentence is adequate, if it is not syntactically correct or idiomatic it is not fluent. Sentences that are both adequate and fluent may still not be adequate or fluent in a particular context; they are not readable in that context. Pronouns and discourse cues are two constructs that may affect the readability of a sentence.
+The most basic form to check if a generated sentence is sound is by using human evaluations. Hence is normal to see researches making use of crowdsourced judges (using services like Amazon Mechanical Turk). These judges can say that a generated sentence is just good or bad, in an informal way. But we can also use a more rigorous score system. 
 
 
-from \cite{Stent}  page 6 
 
+In \cite{Stent} the authors enumerate three criteria to judge a generated sentence:
 
-There is no significant correlation between human judgments of adequacy and human judgments of fluency, indicating that the judges considered these two dimensions separately
-
-from \cite{Stent}  page 7
-
-\textit{Adequacy}: There  are  positive,  but  not  strong,  correlations  between  the  scores  of
-the automatic evaluation metrics and human judgments of adequacy. We conclude that
-these automatic evaluation metrics are adequate, but not good, evaluators of adequacy.
-
-\textit{Fluency}: There are negative correlations between the scores of the automatic evalua-
-tion metrics and human judgments of fluency. This is weakest in the case of LSA, which
-does not consider word order. We conclude that (at least in the presence of variation)
-these automatic evaluation metrics are poor evaluators of fluency
+\begin{enumerate}
+\item \textit{adequacy}: the meaning equivalence between the generated and control sentence. 
+\item \textit{fluency}: the syntactic correctness of the generated sequence.
+\item \textit{readability}: efficacy of the generated sentence in a particular context.
+\end{enumerate}
 
 
 \subsection{BLUE}
