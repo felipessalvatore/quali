@@ -63,50 +63,98 @@ In \cite{Stent} the authors enumerate three criteria to judge a generated senten
 \end{enumerate}
 
 
-\subsection{BLUE}
-This metric was proposed in \cite{Papineni2001} for automatic translation. It compares n-grams (up to 4) of the candidate translation with the n-grams of the reference translation and count the number of matches; it also ads brevity penalty for too short translations. The formula for this metrics is:
 
-\begin{equation}
-BLUE = min \left(1, \frac{output-length}{reference-lenght} \right) \left(\prod_{n=1}^{4} precision_{n} \right)^{\frac{1}{4}}
-\end{equation}
+\subsection{Automatic evaluation}
 
-Where $precision_{n}$ is number of $n$-gram overlap between the candidate and the reference divided by the number of all $n$-grams in the candidate. BLUE scores ranges from $0$ to $1$. Typically this score is computed over an entire corpus and was originally designed for use with multiple reference sentences. To give one simple example we will use the following Portuguese sentence:
 
-\begin{center}
-`em plano aberto, a cidade parece linda'
-\end{center}
+Because of the problems presented in using human judges, you can find in the literature the use of automatic metrics from the field of machine translation and automatic summarization.
 
-The reference translation is
+\subsubsection{BLUE}
 
-\begin{center}
-`in a wide shot, the city looks beautiful'
-\end{center}
 
-Now consider two candidates:
 
-\begin{center}
-$c_1$: `in the open, the city looks beautiful'\\
-$c_2$: `in open plan, the city looks gorgeous'\\
-\end{center}
+One popular metric for automatic translation is called BLUE (bilingual evaluation understudy) \cite{Papineni2001}. It compares n-grams of the candidate translation with the n-grams of the reference translation and counts the number of matches. Let $s$ be a source sentence $\hat{y}$ the hypothesis translation and $y$ a reference translations produced by a professional human translator. 
 
-\begin{figure}
+To define the BLUE score for each translation we need to define first the $n$-gram precision $p_n$:
+
+\begin{equation*}
+p_n = \frac{\text{number of } n\text{-grams in both } \hat{y} \text{ and } y}{\text{number of } n\text{-grams appearing in } \hat{y}}
+\end{equation*}    
+
+We also define a brevity penalty ($BP$) for translations that are too short. Let $len(a)$ be the length of the sentence $a$, we define $BP$ as:
+
+\begin{equation*}
+BP=
+\begin{cases}
+1 & \text{if } len(\hat{y}) > len(y) \\
+\exp\left( 1 - \frac{len(y)}{len(\hat{y})} \right) & \text{otherwise}
+\end{cases}
+\end{equation*} 
+
+
+Hence, the BLEU score is define as:
+
+\begin{equation*}
+BLEU = BP \; \exp \left(\frac{1}{N}  \sum_{n=1}^{N} \log p_n \right)
+\end{equation*}
+
+There are some details about the definition above: to avoid computing $\log 0$ all precisions are smoothed to ensure that they are positive (one technique of smoothing is to use a small positive value to replace any $p_n=0$); each $n$-gram in the candidate $\hat{y}$ is used at most once; and since its expensive to calculate higher $n$-grams we usually take $N=4$.
+
+It is useful to see one application of this metric. For example, suppose $s$ is the Portuguese sentence `Nas tardes da fazenda há muito azul demais', $y$ is the reference English translation `In the farm's afternoons there is too much blue' and suppose we also have three models producing three distinct English translations 
+
+\begin{itemize}
+\item $\hat{y}_1$: `In the afternoons of the farm there is too much blue'
+\item $\hat{y}_2$: `In the farm's afternoons there is a lot of blue'
+\item $\hat{y}_3$: `The farm's afternoons are blue'
+\end{itemize}
+
+
+The table below shows all the values to compute the BLUE score for this example.
+
+\begin{figure}[h]
 \label{bluetable}
 \begin{center}
-\begin{tabular}{|c|c|c|}
+\begin{tabular}{|c|c|c|c|c|c|c|}
 \hline
-\cellcolor{blue!10} Metric& \cellcolor{blue!10} $c_1$ & \cellcolor{blue!10} $c_2$ \\ \hline
-\cellcolor{blue!10} $precision_1$& $5/7$ & $4/7$ \\ \hline
-\cellcolor{blue!10} $precision_2$& $3/6$ & $2/6$  \\ \hline
-\cellcolor{blue!10} $precision_3$& $2/5$ & $1/5$  \\ \hline
-\cellcolor{blue!10} $precision_4$& $1/4$ & $0/4$  \\ \hline
-\cellcolor{blue!10} brevity penalty& $7/8$ & $7/8$  \\ \hline
-\cellcolor{blue!10} $BLUE$& $0.38$ & $0$ \\ \hline
+\cellcolor{blue!10} Sentence & \cellcolor{blue!10} $p_1$ & \cellcolor{blue!10} $p_2$ & \cellcolor{blue!10} $p_3$ & \cellcolor{blue!10} $p_4$ & \cellcolor{blue!10} $BP$ & \cellcolor{blue!10} $BLUE$ \\ \hline
+\cellcolor{blue!10} $\hat{y}_1$ & $8/11$ & $5/10$ & $3/9$ & $2/8$ & $1$ & $.42$\\ \hline
+\cellcolor{blue!10} $\hat{y}_2$ & $7/10$ & $5/9$ & $4/8$ & $3/7$ & $1$ & $.52$\\ \hline
+\cellcolor{blue!10} $\hat{y}_3$ & $3/5$ & $1/4$ & $0$ & $0$ & $.45$ & $.28$\\ \hline
 \end{tabular}
 \end{center}
+\caption{Example of calculating $p_n$, $BP$ and $BLUE$ score}
 \end{figure}
+
+\subsubsection{METEOR}
+
+dkfskjdf
+
+
+
+\subsubsection{ROUGE}
+
+dkfskjdf
+
+
+\subsection{The mismatch between human and automatic evaluation}
+
 
 
 Table \ref{bluetable} shows the precision for each $n$-gram (up to $4$) and the BLUE score for each candidate.
+
+
+ \cite{Stent}  page 7
+
+\textit{Adequacy}: There  are  positive,  but  not  strong,  correlations  between  the  scores  of
+the automatic evaluation metrics and human judgments of adequacy. We conclude that
+these automatic evaluation metrics are adequate, but not good, evaluators of adequacy.
+
+\textit{Fluency}: There are negative correlations between the scores of the automatic evalua-
+tion metrics and human judgments of fluency. This is weakest in the case of LSA, which
+does not consider word order. We conclude that (at least in the presence of variation)
+these automatic evaluation metrics are poor evaluators of fluency
+
+
 
 \section{Creating simplified tasks}
 \label{ch:03-tasks}
