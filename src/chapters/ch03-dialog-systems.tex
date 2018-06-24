@@ -98,7 +98,7 @@ BLEU = BP \; \exp \left(\frac{1}{N}  \sum_{n=1}^{N} \log p_n \right)
 
 There are some details about the definition above: to avoid computing $\log 0$ all precisions are smoothed to ensure that they are positive (one technique of smoothing is to use a small positive value to replace any $p_n=0$); each $n$-gram in the candidate $\hat{y}$ is used at most once; and since its expensive to calculate higher $n$-grams we usually take $N=4$.
 
-It is useful to see one application of this metric. For example, suppose $s$ is the Portuguese sentence `Nas tardes da fazenda há muito azul demais', $y$ is the reference English translation `In the farm's afternoons there is too much blue' and suppose we also have three models producing three distinct English translations 
+It is useful to see one application of this metric. For example, suppose $s$ is the Portuguese sentence `Nas tardes de fazenda há muito azul demais', $y$ is the reference English translation `In the farm's afternoons there is too much blue' and suppose we also have three models producing three distinct English translations 
 
 \begin{itemize}
 \item $\hat{y}_1$: `In the afternoons of the farm there is too much blue'
@@ -179,22 +179,60 @@ where $\beta$ is usually set to favour recal ($\beta = 1.2$).
 
 \subsection{The mismatch between human and automatic evaluation}
 
+Complaints about the mismatch between the automatic metrics and the human judgments are not new. In  \cite{Stent} the authors have observed that i) there  are  positive,  but  not  strong,  correlations  between  the  scores  of the automatic evaluation metrics and human judgments of adequacy; ii) there are negative correlations between the scores of the automatic metrics and human judgments of fluency. As can be seen on the table below:
+
+\begin{figure}[h]
+\label{stenttable}
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline
+\cellcolor{blue!10} Automatic metric & \cellcolor{blue!10} Adequacy & \cellcolor{blue!10} Fluency \\ \hline
+BLEU & $.039$ & $-0.49$ \\ \hline
+\end{tabular}
+\end{center}
+\caption{Correlation between $BLUE$ score and human judgments of adequacy and fluency \cite{Stent}}
+\end{figure}
 
 
-Table \ref{bluetable} shows the precision for each $n$-gram (up to $4$) and the BLUE score for each candidate.
+In a more recencent paper  \cite{LiuLSNCP16}, the authors trained two neural generative models a LSTM language model and HRED on two difrent datasets: the chit chat oriented Twitter dataset and the technical Ubuntu Dialogue Corpus.
+
+After the models were training the were used to generate some sentences, these sentences were evaluated using both the automatic metrics and human judgment. 
 
 
- \cite{Stent}  page 7
 
-\textit{Adequacy}: There  are  positive,  but  not  strong,  correlations  between  the  scores  of
-the automatic evaluation metrics and human judgments of adequacy. We conclude that
-these automatic evaluation metrics are adequate, but not good, evaluators of adequacy.
+The main experiment of the paper was to test for significance of correlation between each automatic metric and  human judgments. The tables below show the results from this experiment:
 
-\textit{Fluency}: There are negative correlations between the scores of the automatic evalua-
-tion metrics and human judgments of fluency. This is weakest in the case of LSA, which
-does not consider word order. We conclude that (at least in the presence of variation)
-these automatic evaluation metrics are poor evaluators of fluency
 
+\begin{table}[h]
+\centering
+\label{hownottable}
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\cellcolor{blue!10} metric & \cellcolor{blue!10} Spearman & \cellcolor{blue!10} $p$-value & \cellcolor{blue!10} Pearson &  \cellcolor{blue!10} $p$-value \\ \hline
+BLEU   & $0.34$   & $< 0.01$  & $0.14$  & $0.17$ \\ \hline
+METEOR & $0.19$   & $0.06$    & $0.19$  & $0.05$ \\ \hline
+ROUGE  & $0.12$   & $0.22$    & $0.1$   & $0.34$ \\ \hline  
+\end{tabular}
+\caption{Correlation between automatic metrics and human judgments based on dialog generated on Twitter \cite{LiuLSNCP16}}
+\end{table}
+
+
+\begin{table}[h]
+\centering
+\label{hownottable}
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\cellcolor{blue!10} metric & \cellcolor{blue!10} Spearman & \cellcolor{blue!10} $p$-value & \cellcolor{blue!10} Pearson &  \cellcolor{blue!10} $p$-value \\ \hline
+BLEU & $0.12$   & $0.23$    & $0.11$  & $0.26$    \\ \hline
+METEOR & $0.06$   & $0.53$    & $0.14$  & $0.16$     \\ \hline
+ROUGE & $0.05$   & $0.59$    & $0.06$  & $0.53$    \\ \hline
+\end{tabular}
+\caption{Correlation between automatic metrics and human judgments based on dialog generated on Ubuntu \cite{LiuLSNCP16}}
+\end{table}
+
+
+
+What this paper indicates is that these metrics correlate very weakly with human judgements in the non-technical Twitter domain, and not at all in the technical Ubuntu domain. This should not be seen as a final sentence to the automatic metrics, they are very useful. But in regarding dialog systems, the use of these metrics should be followed by cautiousness.
 
 
 \section{Creating simplified tasks}
