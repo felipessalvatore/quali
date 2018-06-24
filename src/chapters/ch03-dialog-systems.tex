@@ -1,6 +1,8 @@
 \chapter{Dialog Systems}
 \label{ch:03-dialog-systems}
 
+Techniques to generate dialog fall under the broader field of text generation. There a variety of different tasks of text generation like automatic journalism and automatic summarization. In this chapter, we will review the basic techniques to produce text (in the dialog context) and to evaluate the generated text
+
 
 \section{Using neural networks to generate dialog}
 \label{ch:03-gen}
@@ -38,7 +40,6 @@ x shows the computational graph of this process.
 Note that in this model the prediction is conditioned on the hidden state of the context RNN.
 
 
-
 \section{How to evaluate dialogs?}
 
 \label{ch:03-eval}
@@ -51,7 +52,6 @@ In the seminal paper by Alan Turing \cite{Turing} it is proposed a game to evalu
 \subsection{Human evaluation}
 
 The most basic form to check if a generated sentence is sound is by using human evaluations. Hence is normal to see researches making use of crowdsourced judges (using services like Amazon Mechanical Turk). These judges can say that a generated sentence is just good or bad, in an informal way. But we can also use a more rigorous score system. 
-
 
 
 In \cite{Stent} the authors enumerate three criteria to judge a generated sentence:
@@ -70,8 +70,6 @@ In \cite{Stent} the authors enumerate three criteria to judge a generated senten
 Because of the problems presented in using human judges, you can find in the literature the use of automatic metrics from the field of machine translation and automatic summarization.
 
 \subsubsection{BLUE}
-
-
 
 One popular metric for automatic translation is called BLUE (bilingual evaluation understudy) \cite{Papineni2001}. It compares n-grams of the candidate translation with the n-grams of the reference translation and counts the number of matches. Let $s$ be a source sentence $\hat{y}$ the hypothesis translation and $y$ a reference translations produced by a professional human translator. 
 
@@ -129,7 +127,7 @@ The table below shows all the values to compute the BLUE score for this example.
 
 
 
-The METEOR metric was created to address the weakness in BLUE \cite{Lavie}. This metric is based on an alignment between unigrams from the hypothesis translation $\hat{y}$ and unigrams from the reference translation $y$. This alignment can be based on exact matches, matching between stemmed unigrams, or matching by synonym.
+The METEOR (Metric for Evaluation of Translation with Explicit ORdering) metric was created to address the weakness in BLUE \cite{Lavie}. This metric is based on an alignment between unigrams from the hypothesis translation $\hat{y}$ and unigrams from the reference translation $y$. This alignment can be based on exact matches, matching between stemmed unigrams, or matching by synonym.
 
 After the alignment is done we compute the unigram precision $P$ and unigram recall $R$ as:
 
@@ -162,8 +160,22 @@ METEOR = F_{mean} (1 - penalty)
 
 \subsubsection{ROUGE}
 
-dkfskjdf
+ROUGE, first in \cite{Lin}, defined in stands for (Recall Oriented  Understudy  for  Gisting  Evaluation) and it is a set of metrics for automatic summarization. Among these metrics, we will consider only the $ROUGE_L$ metric (in the same way as \cite{Lowe:2016}). This one is just an F-measure based on the Longest Common Subsequence (LCS), i.e., the longest non-contiguous set of words that occurs in two sentences in the same order. So, let $lcs(a,b)$ be the lenght of the LCS between the sentences $a$ and $b$, the $ROUGE_L$ metric is defined as follows: 
 
+\begin{equation*}
+P_{lcs} = \frac{lcs(\hat{y}, y)}{len(\hat{y})}
+\end{equation*}    
+
+
+\begin{equation*}
+R_{lcs} = \frac{lcs(\hat{y}, y)}{len(y)}
+\end{equation*}
+
+\begin{equation*}
+ROUGE_L = \frac{(1 + \beta^2) P_{lcs} R_{lcs}}{R_{lcs} + \beta^{2}P_{lcs}}
+\end{equation*}
+
+where $\beta$ is usually set to favour recal ($\beta = 1.2$).
 
 \subsection{The mismatch between human and automatic evaluation}
 
