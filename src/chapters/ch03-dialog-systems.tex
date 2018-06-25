@@ -255,8 +255,12 @@ What this paper indicates is that these metrics correlate very weakly with human
 \section{Creating simplified tasks}
 \label{ch:03-tasks}
 
-Speak about bAbI
+Given all these limitations, one interesting strategy proposed on \cite{WestonBCM15} is to create a set of question answering (QA) synthetic tasks to test different capabilities of a dialog agent. QA tasks are easy to evaluate, so the difficulty lies on creating the right tasks. They should be simple, diverse, self-contained and relevant. At the same time, any adult person with no specialized knowledge should be able to achieve 100 $\%$ accuracy on each task.
 
+
+With that purpose the authors of \cite{WestonBCM15} have created a set of 20 simple tasks, they believe that those tasks are a `prerequisite to full language understanding and reasoning'. Without entering in the details of each task, it was designed to cover a variety of skills: from counting to positional reasoning. By running a set of experiments with different models they observed that by using a memory network they achieve 95 $\%$ accuracy in most of the tasks (the mean performance was 93 $\%$).
+
+Here we will focus only in how logic, and logic relations were formulated in this framework and how it can be expanded.
 
 \section{The logical entailment problem inside the bAbI task}
 \label{ch:03-tasks}
