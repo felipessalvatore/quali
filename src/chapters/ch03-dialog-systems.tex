@@ -1,37 +1,46 @@
 \chapter{Dialog Systems}
 \label{ch:03-dialog-systems}
 
-Techniques to generate dialog fall under the broader field of text generation. There a variety of different tasks of text generation like automatic journalism and automatic summarization. In this chapter, we will review the basic techniques to produce text (in the dialog context) and to evaluate the generated text
-
+ In this chapter, we will review the some techniques to produce dialogs and some evaluation strategies. For brevity's sake, we decided not to give a full historic presentation of the field of dialog generation. Hence, our review of the techniques will be deep learning oriented.
 
 \section{Using neural networks to generate dialog}
 \label{ch:03-gen}
 
-Sequence to sequence (seq2seq) models are originally formulated to improve the automatic translation task \cite{Sustskever}. The authors of \cite{DBLP:journals/corr/VinyalsL15} proposed to use this model to simplify the dialog generation problem as a simple \textit{context-to-response mapping}. Since then the field of dialog generation was revolutionized. 
+\par For some time the main paradigm in AI was the so called \textbf{knowledge base approach}: the main goal of AI was to develop intelligent systems capable of solving certain classes of problems by having a \textit{representation} or \textit{model} of the world. In this view, a decision by a machine is synonymous to \textit{inferring in a formal language}\cite{McCarthy}. This was applied to the dialog system ELIZA developt at MIT in 1964 \cite{Weizenbaum}. The ELIZA system was built with a very precise dialog model, it tried to simulate a Rogerian psychologist. So in a conversation with a human the human's statements were reflected back at them based on an algorithm that transforms the human's sentence using a keyword rank system.
 
-As we have seen, a seq2seq model encodes the source sentence in a vector $\vect{h}$ and uses this vector to initiate a language model. This can be used to model a dialog as follows: suposse we have recorded two agents A and B. We will use this dialog as the training data for our model. The model will try to predict how B would respond. Let $\vect{s} = s_1, s_2, \dots, s_n$ be an utterance from A and  $\vect{x} = x_1, x_2, \dots, x_m$ be the response from B (both $\vect{s}$ and $\vect{x}$ are a sequence of words). $\vect{s}$ is input to an encoder network, which is a RNN. The encodes summarizes the input utterance into a vector, say $\vect{h}$, and this vector is used to initiate the decoder model, which is another RNN. And the decoder takes as input $\vect{x}$ and at each time $t$ the model tries to predict the word $t+1$ using $x_1, x_2, ...., x_{t-1}, \vect{h}$. This became a multiclass classification task, and we train the model by minimizing the cross entropy loss.
+\par A different point of view is that AI should construct systems that acquire their knowledge via \textit{data observation}. More useful than programming hand-coded rules in an AI agent, we should enable that agent to extract patters from the complexity of data. This is the \textbf{machine learning approach}. 
+
+This point of view makes sense when we frame the dialog generation problem as a translation problem. As in the field of automatic translation, we can use the already available human-made translations as data to train a model. So all the complex translation rules will be learned from the data. In a similar way, we can also use already available dialog as data. To frame the dialog task between two agents A and B as a translation problem we need to see the dialog act as follows: the source language is the set of utterances spoken by A, the target language is the sentences of B, and so the dialog system is just a program translating massages from A to B. 
+
+\subsection{The sequence to sequence approach}
+
+Sequence to sequence (seq2seq) models are originally formulated to improve the automatic translation task \cite{Sustskever}. The authors of \cite{DBLP:journals/corr/VinyalsL15} proposed to use this model to simplify the dialog generation problem as a simple \textit{context-to-response mapping}. This approach has deeply influenced the field of dialog generation.
+
+As we have seen, a seq2seq model encodes the source sentence in a vector $\vect{h}$ and uses this vector to initiate a language model. This can be used to model a dialog as follows: suposse we have recorded two agents A and B. We will use this dialog as the training data for our model. The model will try to predict how B would respond. Let $\vect{s} = s_1, s_2, \dots, s_n$ be an utterance from A and  $\vect{x} = x_1, x_2, \dots, x_m$ be the response from B (both $\vect{s}$ and $\vect{x}$ are a sequence of words). $\vect{s}$ is the input to an encoder network, which is a RNN. The encodes summarizes the input utterance into a vector, say $\vect{h}$, and this vector is used to initiate the decoder model, which is another RNN. The decoder takes as input $\vect{x}$ and at each time $t$ the model tries to predict the word $t+1$ using $x_1, x_2, ...., x_{t-1}, \vect{h}$. This became a multiclass classification task, and, as usual, we train the model by minimizing the cross entropy loss.
 
 
-After we training we can use the same model to generate a new dialog: the agent A gives an utterance and we use the encoder model to summarize this uterance in a vector h as before, but now we use the probability distribution learned by the decoder model (initialized by $\vect{h}$) to sample words until it generates an end-of-speech <eos> token (or until a upper bound for the uterance size is reached). This approach lead to interesting results, for example in \cite{DBLP:journals/corr/VinyalsL15} after they have trained the model on the OpenSubtitles dataset (a dataset compose of subtitles from different movies) they sample some results of the human-model interaction:
+After the model is trained we can use the same model to generate a new dialog as follows: the agent A gives an utterance and we use the encoder model to summarize this uterance in a vector $\vect{h}$ as before, but now we use the probability distribution learned by the decoder model (initialized by $\vect{h}$) to sample words until it generates an end-of-speech <eos> token (or until a upper bound for the uterance size is reached). This approach lead to interesting results, for example in \cite{DBLP:journals/corr/VinyalsL15} after they have trained the model on the OpenSubtitles dataset (a dataset compose of subtitles from different movies) the follow dialog was produced:
 
 \begin{itemize}
-\item \textbf{Human}: What is moral ?
-\item \textbf{Machine}: What empowered humanity , what intellectual the essence is.
-\item \textbf{Human}: What is immoral ?
-\item \textbf{Machine}: The fact that you have a child .
-\item \textbf{Human}: What is morality ?
-\item \textbf{Machine}: What is altruism ?
-\item \textbf{Human}: What is the definition of altruism ?
-\item \textbf{Machine}: If you don ’t believe in god , then you don ’t know .
-\item \textbf{Human}: Ok ... so what is the definition of morality ?
-\item \textbf{Machine}: Well , the truth is , you're not a believer in god almighty .
-\item \textbf{Human}: Tell me the definition of morality , I am quite upset now !
-\item \textbf{Machine}: I ’m not ashamed of being a philosopher! 
+\item \textbf{Human}: What is moral?
+\item \textbf{Machine}: What empowered humanity, what intellectual the essence is.
+\item \textbf{Human}: What is immoral?
+\item \textbf{Machine}: The fact that you have a child.
+\item \textbf{Human}: What is morality?
+\item \textbf{Machine}: What is altruism?
+\item \textbf{Human}: What is the definition of altruism?
+\item \textbf{Machine}: If you don’t believe in god, then you don’t know.
+\item \textbf{Human}: Ok ... so what is the definition of morality?
+\item \textbf{Machine}: Well, the truth is, you're not a believer in God almighty.
+\item \textbf{Human}: Tell me the definition of morality, I am quite upset now!
+\item \textbf{Machine}: I’m not ashamed of being a philosopher! 
 \end{itemize}
 
-The model is clearly learning some interesting responses, but it is clear to see that some answers are generic (for example, answer the question `What is morality ?' with another question `What is altruism ?'). We can also see that the model lacks coherence on the responses. 
+The model is clearly learning some interesting responses, but we can clearly observe that some answers are \textit{generic} (for example, answer the question `What is morality?' with another question `What is altruism?'). We can also see that the model lacks \textit{coherence on the responses}.
 
-Nevertheless the seq2seq model presents a good basis for more complex models. For example, take the hierarchical recurrent encoder-decoder architecture (HRED) proposed by Sordoni et al. \cite{Serban:2016a}. In this setting a dialogue is viewed as a sequence of utterances $D=\langle U_1 , \dots, U_M \rangle$ involving two interlocutors such that each $U_i$ contains a sequence of $N_i$ tokens, $U_i = \langle w_{i,1} , \dots, w_{i,N_{i}} \rangle$. Each $w_{i,j}$ is a random variable that taking values in the $V\cup A$ where $V$ is the vocabulary and $A$ is the set of \textit{speech acts} (for example 'pause' and 'end of turn' are  speech acts). In this case the learning task is the same as the one in language modeling: we want to estimate of the probability of one token (speech acts included) conditioned on the previously tokens:
+\subsection{The hierarchical recurrent encoder-decoder architecture} 
+
+The seq2seq model presents a good basis for more complex models. For example, take the hierarchical recurrent encoder-decoder architecture (HRED) proposed in \cite{Serban:2016a}. In this setting a dialogue is viewed as a sequence of utterances $D=\langle U_1 , \dots, U_M \rangle$ involving two interlocutors such that each $U_i$ contains a sequence of $N_i$ tokens, $U_i = \langle w_{i,1} , \dots, w_{i,N_{i}} \rangle$. Each $w_{i,j}$ is a random variable that taking values in the $V\cup A$ where $V$ is the vocabulary and $A$ is the set of \textit{speech acts} (for example 'pause' and 'end of turn' are  speech acts). In this case the learning task is the same as the one in language modeling: we want to estimate of the probability of one token (speech acts included) conditioned on the previously tokens:
 
 \begin{equation}
 P(w_{i,j} | w_{i,1}, \dots , w_{i,j-1}, U_{1}, \dots U_{i-1})
@@ -45,10 +54,10 @@ In this paper the authors use a \textbf{Hierarchical Recurrent Encoder-Decoder m
 \item ($U_3$) I feel like I'm going to pass out.
 \end{itemize}
 
-First the encoder RNN will encode the sentence $U_1$ in a vector $\vect{U}_1$, then the context RNN will compute a hidden state, say $\vect{C_1}$ using $\vect{U}_1$ and all past sentences in the dialog. After that the decoder RNN will use $U_2$ as an input to predict the next word using $\vect{C_1}$. The same procedure is repeated for $U_2$. Figure
+First the encoder RNN will encode the sentence $U_1$ in a vector $\vect{U}_1$, then the context RNN will compute a hidden state, say $\vect{C_1}$ using $\vect{U}_1$ and all past sentences in the dialog. After that the decoder RNN will use $U_2$ as an input to predict the next word using $\vect{C_1}$. The same procedure is repeated for $U_2$. Figure \ref{HRED}
 x shows the computational graph of this process.
 
-\begin{figure}[ht!]
+\begin{figure}[h]
 \label{HRED}
 \includegraphics[width=10cm]{img/HRED_placeholder.png}
 \caption{HRED model}
@@ -56,6 +65,9 @@ x shows the computational graph of this process.
 
 Note that in this model the prediction is conditioned on the hidden state of the context RNN.
 
+\subsection{The memory model} 
+
+dsd
 
 \section{How to evaluate dialogs?}
 
