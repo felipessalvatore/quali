@@ -66,7 +66,37 @@ Note that in this model the prediction from the decoder model is conditioned on 
 
 \subsection{The memory model} 
 
-dsd
+One version of the RNN model that found success on the dialog task is the Memory Network model \cite{SukhbaatarSWF15}. In a memory model the recurrence reads from a possibly large external memory multiple times before outputting a token. To explain this model we will use a very simplified version of dialog: a question-answer example where the answer is composed of one word only. 
+
+Let $V$ be the vocabulary size, $U_1, ..., U_n$ be the context utterances (where $U_i = \langle w_{i,1} , \dots, w_{i,N_{i}} \rangle$), $q = \langle w_{1} , \dots, w_{l} \rangle$ a question and $a$ the answer. Here we use $w$ both as a token and as an one-hot vector representing the same token.
+
+The memory model is defined by $k$ memory layers, each layer is compose of the following parts:
+
+
+\begin{itemize}
+\item $\{ {\vect{m}^{k}}_i\}$ is an $n$-sequence of \textit{memory vectors}. Where $i = 1, \dots, n$ and $\vect{m}^{k}_i = \sum_{j} \vect{A}^{k}w_{i,j}$.
+\item  $\vect{u}^{k}$ is the \textit{input vector}, where
+\begin{equation}
+\vect{u}^{k}=
+\begin{cases}
+\sum_{j} \vect{B}^{k}w_{j} & \text{if } k=1, \\
+\vect{u}^{k-1} + \vect{o}^{k-1}  & \text{otherwise}\\
+\end{cases}
+\end{equation}
+\item $\vect{p}^{k} \in \mathbb{R}^{n}$ is the \textit{match between the input vector} $\vect{u}^{k}$ \textit{and each memory vector} ${\vect{m}^{k}}_i$. $\vect{p}^{k}$ is defined as
+\begin{equation}
+{\vect{p}^{k}}_i = softmax({\vect{u}^{k}}^{\top} {\vect{m}^{k}}_i) 
+\end{equation}
+\item $\{ {\vect{c}^{k}}_i\}$ is another representation of the context $U_1, ..., U_n$ defined by another embedding matrix $\vect{C}$, i.e., $\vect{c}^{k}_i = \sum_{j} \vect{C}^{k}w_{i,j}$.
+\item $\vect{o}^{k}$ is the memory layer's  \textit{output}. It is a sum over the transformed context $\{ {\vect{c}^{k}}_i\}$ weighted by the probability vector $\vect{p}^{k}$ defined by the input $\vect{u}^{k}$, i.e.,  $\vect{o}^{k}= \sum_{i} {\vect{p}^{k}}_i {\vect{c}^{k}}_i$.
+\end{itemize}
+
+Note that each memory layer $k$ is defined by three embedding matrices $\vect{A}^{k}, \vect{B}^{k}, \vect{C}^{k} \in \mathbb{R}^{V,d}$ where $d$, the size of the embedding, is a hyperparameter.
+
+After all the $K$ memory layers have computed their output, the model's prediction is a probability distribution over all the tokens in the vocabulary, remember here the answer is composed of one word only:
+\begin{equation}
+\vect{\hat{a}}= softmax(\vect{W}(\vect{o}^{K}))
+\end{equation}
 
 \section{How to evaluate dialogs?}
 
@@ -105,26 +135,26 @@ One popular metric for automatic translation is called BLUE (bilingual evaluatio
 
 To define the BLUE score for each translation we need to define first the $n$-gram precision $p_n$:
 
-\begin{equation*}
+\begin{equation}
 p_n = \frac{\text{number of } n\text{-grams in both } \hat{y} \text{ and } y}{\text{number of } n\text{-grams appearing in } \hat{y}}
-\end{equation*}    
+\end{equation}    
 
 We also define a brevity penalty ($BP$) for translations that are too short. Let $len(a)$ be the length of the sentence $a$, we define $BP$ as:
 
-\begin{equation*}
+\begin{equation}
 BP=
 \begin{cases}
 1 & \text{if } len(\hat{y}) > len(y) \\
 \exp\left( 1 - \frac{len(y)}{len(\hat{y})} \right) & \text{otherwise}
 \end{cases}
-\end{equation*} 
+\end{equation} 
 
 
 Hence, the BLEU score is define as:
 
-\begin{equation*}
+\begin{equation}
 BLEU = BP \; \exp \left(\frac{1}{N}  \sum_{n=1}^{N} \log p_n \right)
-\end{equation*}
+\end{equation}
 
 There are some details about the definition above: to avoid computing $\log 0$ all precisions are smoothed to ensure that they are positive (one technique of smoothing is to use a small positive value to replace any $p_n=0$); each $n$-gram in the candidate $\hat{y}$ is used at most once; and since it is expensive to calculate higher $n$-grams we usually take $N=4$.
 
@@ -161,49 +191,49 @@ The METEOR (Metric for Evaluation of Translation with Explicit ORdering) metric 
 
 After the alignment is done we compute the unigram precision $P$ and unigram recall $R$ as:
 
-\begin{equation*}
+\begin{equation}
 P = \frac{\text{number of } \text{unigrams in both } \hat{y} \text{ and } y}{\text{number of } \text{unigrams appearing in } \hat{y}}
-\end{equation*}    
+\end{equation}    
 
 
-\begin{equation*}
+\begin{equation}
 R = \frac{\text{number of } \text{unigrams in both } \hat{y} \text{ and } y}{\text{number of } \text{unigrams appearing in } y}
-\end{equation*}    
+\end{equation}    
 
 We them combine these values using the harmonic mean:
 
-\begin{equation*}
+\begin{equation}
 F_{mean} = \frac{10 P R}{R + 9P}
-\end{equation*}
+\end{equation}
 
 To take into account longer matches, this metric computes a penalty for the "chunkiness" of the alignment. The idea is to group the unigrams in fewest possible chunks. Here chunk is defined as a set of unigrams that are adjacent in $\hat{y}$ and in $y$. Hence the penalty is defined as
 
-\begin{equation*}
+\begin{equation}
 penalty = 0.5 \left( \frac{c}{um} \right)^{3}
-\end{equation*}
+\end{equation}
 
 where $c$ is the number of $chunks$ and $um$ is the number of matched unigrams. Hence the METEOR score is defined as
 
-\begin{equation*}
+\begin{equation}
 METEOR = F_{mean} (1 - penalty)
-\end{equation*}
+\end{equation}
 
 \subsubsection{ROUGE}
 
 ROUGE stands for (Recall Oriented Understudy for Gisting Evaluation), it is a set of metrics for automatic summarization\cite{Lin}. Following the dialog generation literature\cite{Lowe:2016}, we will consider only the $ROUGE_L$ metric. This one is just an F-measure based on the Longest Common Subsequence (LCS), i.e., the longest non-contiguous set of words that occurs in two sentences in the same order. So, let $lcs(a,b)$ be the lenght of the LCS between the sentences $a$ and $b$, the $ROUGE_L$ metric is defined as follows: 
 
-\begin{equation*}
+\begin{equation}
 P_{lcs} = \frac{lcs(\hat{y}, y)}{len(\hat{y})}
-\end{equation*}    
+\end{equation}    
 
 
-\begin{equation*}
+\begin{equation}
 R_{lcs} = \frac{lcs(\hat{y}, y)}{len(y)}
-\end{equation*}
+\end{equation}
 
-\begin{equation*}
+\begin{equation}
 ROUGE_L = \frac{(1 + \beta^2) P_{lcs} R_{lcs}}{R_{lcs} + \beta^{2}P_{lcs}}
-\end{equation*}
+\end{equation}
 
 where $\beta$ is usually set to favour recal ($\beta = 1.2$).
 
