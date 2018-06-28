@@ -1,6 +1,10 @@
 \chapter{Background}
 \label{ch:02-background}
 
+
+\subsection{Machine learning}
+
+
 \subsection{Neural network}
 
 
@@ -32,9 +36,6 @@ Recurrent Neural Network is a family of neural network specialized in sequential
 
 $\vect{h}^{(t)}$ is called \textit{state}, \textit{hidden state}, or \textbf{cell}.
 
-Is costumerely to represent a RNN as a ciclic graph \ref{RNNSimplified}
-
-\input{tikz/RNNSimplified}
 
 \par This recurrent equation can be unfolded for a finite number of steps $\tau$. For example, when $\tau =3$:
 \vspace{0.2cm}
@@ -46,10 +47,8 @@ Is costumerely to represent a RNN as a ciclic graph \ref{RNNSimplified}
 \end{align}
 
 
-
 Hence for any finite step $\tau$ we can describe the model as a DAG \ref{RNNSimplifiedUnfolded}.
 
-\input{tikz/RNNSimplifiedUnfolded}
 
 Using a concret example consider the following model define by the equations:
 
@@ -71,13 +70,11 @@ f(\vect{x}^{(t)}, \vect{h}^{(t-1)}; \vect{V}, \vect{W}, \vect{U}, \vect{c}, \vec
 
 Using the graphical representation the model can be view as:
 
-\input{tikz/RNNGraphExpanded} 
 
 !!! explicar como funciona o treinamento !!!
 
 An RNN with a loss function:
 
-\input{tikz/rnn-time-unfolding}
 
 
 \section{GRU}
@@ -118,7 +115,6 @@ Note that the new hidden state combines the candidate hidden state $\vect{\widet
 
 With similar definitions for $\text{aff}(\vect{\theta}_{u})$ and $\text{aff}(\vect{\theta}_{r})$. Figure \ref{GRU} shows the hidden state of the GRU model for time step $t$. If compared with Figure \ref{RNNGraphExpanded} we can see that the basic structure is the same, just the way of computing the hidden state $\vect{h}^{(t)}$ has changed.
 
- \input{tikz/GRU_cell}
 
 \section{LSTM}
 \label{sec:LSTM}
@@ -157,7 +153,6 @@ The new hidden state, $\vect{h}^{(t)}$, is formed by filtering $\vect{c}^{(t)}$:
 \end{equation}
 
 
-\input{tikz/LSTM_cell}
 
 
 \section{Language model}
@@ -261,7 +256,6 @@ The language model is similar as the RNN described above. It is defined by the f
 \vect{\hat{y}}^{(t)} = softmax(\vect{V}\vect{h}^{(t)} + \vect{c})
 \end{equation}
 
-\input{tikz/LanguageModelExpanded}
 
 
 At each time $t$ the point-wise loss is:
