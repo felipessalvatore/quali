@@ -8,7 +8,7 @@
 
 \par For some time the main paradigm in AI was the so called \textbf{knowledge base approach}: the main goal of AI was to develop intelligent systems capable of solving certain classes of problems by having a \textit{representation} or \textit{model} of the world. In this view, a decision by a machine is synonymous to \textit{inferring in a formal language}\cite{McCarthy}. This was applied to the dialog system ELIZA developt at MIT in 1964 \cite{Weizenbaum}. The ELIZA system was built with a very precise dialog model, it tried to simulate a Rogerian psychologist. So in a conversation with a human the human's statements were reflected back at them based on an algorithm that transforms the human's sentence using a keyword rank system.
 
-\par A different point of view is that AI should construct systems that acquire their knowledge via \textit{data observation}. More useful than programming hand-coded rules in an AI agent, we should enable that agent to extract patters from the complexity of data. This is the \textbf{machine learning approach}. 
+\par A different point of view is that AI should construct systems that acquire their knowledge via \textit{data observation}. More useful than programming hand-coded rules in an AI agent, we should enable that agent to extract patters from the complexity of data. This is the \textbf{machine learning approach} and, regarding dialog generation, the models based on this point of view are the most important models today \cite{BordesW16, Lowe:2016, Serban:2016c, Serban:2016a, Shao:2017, Wen}.
 
 This point of view makes sense when we frame the dialog generation problem as a translation problem. As in the field of automatic translation, we can use the already available human-made translations as data to train a model. So all the complex translation rules will be learned from the data. In a similar way, we can also use already available dialog as data. To frame the dialog task between two agents A and B as a translation problem we need to see the dialog act as follows: the source language is the set of utterances spoken by A, the target language is the sentences of B, and so the dialog system is just a program translating massages from A to B. 
 
@@ -40,30 +40,29 @@ The model is clearly learning some interesting responses, but we can clearly obs
 
 \subsection{The hierarchical recurrent encoder-decoder architecture} 
 
-The seq2seq model presents a good basis for more complex models. For example, take the hierarchical recurrent encoder-decoder architecture (HRED) proposed in \cite{Serban:2016a}. In this setting a dialogue is viewed as a sequence of utterances $D=\langle U_1 , \dots, U_M \rangle$ involving two interlocutors such that each $U_i$ contains a sequence of $N_i$ tokens, $U_i = \langle w_{i,1} , \dots, w_{i,N_{i}} \rangle$. Each $w_{i,j}$ is a random variable that taking values in the $V\cup A$ where $V$ is the vocabulary and $A$ is the set of \textit{speech acts} (for example 'pause' and 'end of turn' are  speech acts). In this case the learning task is the same as the one in language modeling: we want to estimate of the probability of one token (speech acts included) conditioned on the previously tokens:
+The seq2seq model presents a good basis for more complex models. For example, take the hierarchical recurrent encoder-decoder architecture (HRED) proposed in \cite{Serban:2016a}. In this setting a dialogue is viewed as a sequence of utterances $D=\langle U_1 , \dots, U_M \rangle$ involving two interlocutors such that each $U_i$ contains a sequence of $N_i$ tokens, $U_i = \langle w_{i,1} , \dots, w_{i,N_{i}} \rangle$. Each $w_{i,j}$ is a random variable taking values in $V\cup A$ where $V$ is the vocabulary and $A$ is the set of \textit{speech acts} (for example 'pause' and 'end of turn' are  speech acts). In this case the learning task is the same as the one from language modeling: we want to estimate of the probability of one token (speech acts included) conditioned on the previously tokens:
 
 \begin{equation}
 P(w_{i,j} | w_{i,1}, \dots , w_{i,j-1}, U_{1}, \dots U_{i-1})
 \end{equation}
 
-The different dialogues $\langle U_1 , \dots, U_M \rangle$ will serve as a corpus.
-In this paper the authors use a \textbf{Hierarchical Recurrent Encoder-Decoder model(HRED)}, i.e., a model based on three RNNs: an \textit{encoder} RNN, a \textit{context} RNN and a \textit{decoder} RNN.  To understand the workings of this model, suppose we have the following dialog:
+The different utterances $\langle U_1 , \dots, U_M \rangle$ will serve as a dialog corpus.
+The authors of \cite{Serban:2016a} use a \textit{Hierarchical Recurrent Encoder-Decoder model} (HRED), a model based on three RNNs: an \textit{encoder} RNN, a \textit{context} RNN and a \textit{decoder} RNN.  To understand the workings of this model, suppose we have the following dialog:
 \begin{itemize}
 \item ($U_1$) Mom, I don't feel so good.\\
 \item ($U_2$) What's wrong?\\
 \item ($U_3$) I feel like I'm going to pass out.
 \end{itemize}
 
-First the encoder RNN will encode the sentence $U_1$ in a vector $\vect{U}_1$, then the context RNN will compute a hidden state, say $\vect{C_1}$ using $\vect{U}_1$ and all past sentences in the dialog. After that the decoder RNN will use $U_2$ as an input to predict the next word using $\vect{C_1}$. The same procedure is repeated for $U_2$. Figure \ref{HRED}
-x shows the computational graph of this process.
+First the encoder RNN will encode the sentence $U_1$ in a vector $\vect{U}_1$, then the context RNN will compute a hidden state, say $\vect{C_1}$ using $\vect{U}_1$ and all past sentences in the dialog. After that the decoder RNN will use $U_2$ as an input to predict the next word using $\vect{C_1}$. The same procedure is repeated for $U_2$. Figure \ref{HRED} shows the computation graph of this process.
 
 \begin{figure}[h]
 \label{HRED}
-\includegraphics[width=10cm]{img/HRED_placeholder.png}
+\includegraphics[width=12cm]{img/HRED_placeholder.png}
 \caption{HRED model}
 \end{figure}
 
-Note that in this model the prediction is conditioned on the hidden state of the context RNN.
+Note that in this model the prediction from the decoder model is conditioned on the hidden state of the context RNN.
 
 \subsection{The memory model} 
 
@@ -73,9 +72,9 @@ dsd
 
 \label{ch:03-eval}
 
-In the seminal paper by Alan Turing \cite{Turing} it is proposed a game to evaluate a dialog system. The idea behind the game was simple: three players A, B and C can interact only by nonpersonal communication. C knows that he will interact with a dialog system (A) and a person (B), but he does not know which is which. C should exchange some conversation both with A and B; after some time he should guess who is the dialog system and who is the human. The goal of A is to be as human as possible in order to fool C; and the goal of B is to help C come to the right answer.
+In the seminal paper by Alan Turing \cite{Turing} it is proposed a game to evaluate a dialog system. The idea behind the game was simple: three players A, B and C can interact only by nonpersonal communication. C knows that he will interact with a dialog system (A) and a person (B), but C does not know which is which. C should exchange some conversation both with A and B; after some time he should guess who is the dialog system and who is the human. The goal of A is to be as human as possible in order to fool C; and the goal of B is to help C come to the right answer.
 
-\par This is the famous \textit{Turing Test}. If the dialog system wins this game we say that \textit{it has passed the Turing Test}. For many people this is the holy grail of artificial intelligence. We disagree with that. [Give your oppion about that]
+\par This is the famous \textit{Turing Test}. If the dialog system wins this game we say that \textit{it has passed the Turing Test}. For many people this is the holy grail of artificial intelligence. Although this is an interesting text for a philosophical investigation, for many applications we do not want a dialog system to emulate a human being. We just want thath the system solve a very specific task (booking an airplane seat, asking for user information, etc.). So we will avoind such kind of tests.
 
 
 \subsection{Human evaluation}
@@ -91,7 +90,9 @@ In \cite{Stent} the authors enumerate three criteria to judge a generated senten
 \item \textit{readability}: efficacy of the generated sentence in a particular context.
 \end{enumerate}
 
+Adequacy and fluency are obvious criteria, but readability is also important. Take, for example, the generated response `If you don’t believe in god, then you don’t know.' for the question `What is the definition of altruism?'. It is a syntatic correct answer that is completely out of context.
 
+Regarding text generation, there should always be some kind of human evaluation, but an evaluation system that relies only on humans presents some severe disadvantages: i) the research results became non-reproducible; ii) the costs for running experiments increases dramatically.
 
 \subsection{Automatic evaluation}
 
@@ -125,7 +126,7 @@ Hence, the BLEU score is define as:
 BLEU = BP \; \exp \left(\frac{1}{N}  \sum_{n=1}^{N} \log p_n \right)
 \end{equation*}
 
-There are some details about the definition above: to avoid computing $\log 0$ all precisions are smoothed to ensure that they are positive (one technique of smoothing is to use a small positive value to replace any $p_n=0$); each $n$-gram in the candidate $\hat{y}$ is used at most once; and since its expensive to calculate higher $n$-grams we usually take $N=4$.
+There are some details about the definition above: to avoid computing $\log 0$ all precisions are smoothed to ensure that they are positive (one technique of smoothing is to use a small positive value to replace any $p_n=0$); each $n$-gram in the candidate $\hat{y}$ is used at most once; and since it is expensive to calculate higher $n$-grams we usually take $N=4$.
 
 It is useful to see one application of this metric. For example, suppose $s$ is the Portuguese sentence `Nas tardes de fazenda há muito azul demais', $y$ is the reference English translation `In the farm's afternoons there is too much blue' and suppose we also have three models producing three distinct English translations 
 
@@ -189,7 +190,7 @@ METEOR = F_{mean} (1 - penalty)
 
 \subsubsection{ROUGE}
 
-ROUGE, first in \cite{Lin}, defined in stands for (Recall Oriented  Understudy  for  Gisting  Evaluation) and it is a set of metrics for automatic summarization. Among these metrics, we will consider only the $ROUGE_L$ metric (in the same way as \cite{Lowe:2016}). This one is just an F-measure based on the Longest Common Subsequence (LCS), i.e., the longest non-contiguous set of words that occurs in two sentences in the same order. So, let $lcs(a,b)$ be the lenght of the LCS between the sentences $a$ and $b$, the $ROUGE_L$ metric is defined as follows: 
+ROUGE stands for (Recall Oriented Understudy for Gisting Evaluation), it is a set of metrics for automatic summarization\cite{Lin}. Following the dialog generation literature\cite{Lowe:2016}, we will consider only the $ROUGE_L$ metric. This one is just an F-measure based on the Longest Common Subsequence (LCS), i.e., the longest non-contiguous set of words that occurs in two sentences in the same order. So, let $lcs(a,b)$ be the lenght of the LCS between the sentences $a$ and $b$, the $ROUGE_L$ metric is defined as follows: 
 
 \begin{equation*}
 P_{lcs} = \frac{lcs(\hat{y}, y)}{len(\hat{y})}
@@ -219,18 +220,14 @@ Complaints about the mismatch between the automatic metrics and the human judgme
 BLEU & $.039$ & $-0.49$ \\ \hline
 \end{tabular}
 \end{center}
-\caption{Correlation between $BLUE$ score and human judgments of adequacy and fluency \cite{Stent}}
+\caption{Correlation between $BLUE$ score and human judgments of adequacy and fluency (extract from\cite{Stent})}
 \end{figure}
 
+In a more recencent paper \cite{LiuLSNCP16}, the authors trained two neural generative models for dialog (a LSTM language model and the HRED model) on two difrent datasets: the chit chat oriented Twitter dataset and the technical Ubuntu Dialogue Corpus.
 
-In a more recencent paper  \cite{LiuLSNCP16}, the authors trained two neural generative models a LSTM language model and HRED on two difrent datasets: the chit chat oriented Twitter dataset and the technical Ubuntu Dialogue Corpus.
-
-After the models were training the were used to generate some sentences, these sentences were evaluated using both the automatic metrics and human judgment. 
-
-
+After the models were training they were used to generate some sentences, these sentences were evaluated using both the automatic metrics and human judgments. 
 
 The main experiment of the paper was to test for significance of correlation between each automatic metric and  human judgments. The tables below show the results from this experiment:
-
 
 \begin{table}[h]
 \centering
@@ -242,7 +239,8 @@ BLEU   & $0.34$   & $< 0.01$  & $0.14$  & $0.17$ \\ \hline
 METEOR & $0.19$   & $0.06$    & $0.19$  & $0.05$ \\ \hline
 ROUGE  & $0.12$   & $0.22$    & $0.1$   & $0.34$ \\ \hline  
 \end{tabular}
-\caption{Correlation between automatic metrics and human judgments based on dialog generated on Twitter \cite{LiuLSNCP16}}
+\caption{Correlation between automatic metrics and human judgments based on dialog generated on Twitter
+(extract from\cite{LiuLSNCP16})}
 \end{table}
 
 
@@ -256,29 +254,46 @@ BLEU & $0.12$   & $0.23$    & $0.11$  & $0.26$    \\ \hline
 METEOR & $0.06$   & $0.53$    & $0.14$  & $0.16$     \\ \hline
 ROUGE & $0.05$   & $0.59$    & $0.06$  & $0.53$    \\ \hline
 \end{tabular}
-\caption{Correlation between automatic metrics and human judgments based on dialog generated on Ubuntu \cite{LiuLSNCP16}}
+\caption{Correlation between automatic metrics and human judgments based on dialog generated on Ubuntu (extract from\cite{LiuLSNCP16})}
 \end{table}
 
-
-
-What this paper indicates is that these metrics correlate very weakly with human judgements in the non-technical Twitter domain, and not at all in the technical Ubuntu domain. This should not be seen as a final sentence to the automatic metrics, they are very useful. But in regarding dialog systems, the use of these metrics should be followed by cautiousness.
-
+What this paper indicates is that these metrics correlate very weakly with human judgements in the non-technical Twitter domain, and not at all in the technical Ubuntu domain. These results do not show that automatic metrics should be avoid at all cost, but they indicate the danger of relying solely on those metrics.
 
 \section{Creating simplified tasks}
 \label{ch:03-tasks}
 
-Given all these limitations, one interesting strategy proposed on \cite{WestonBCM15} is to create a set of question answering (QA) synthetic tasks to test different capabilities of a dialog agent. QA tasks are easy to evaluate, so the difficulty lies on creating the right tasks. They should be simple, diverse, self-contained and relevant. At the same time, any adult person with no specialized knowledge should be able to achieve 100 $\%$ accuracy on each task.
+Given all these limitations, one interesting strategy proposed in \cite{WestonBCM15} is to create a set of question answering (QA) synthetic tasks to test different capabilities of a dialog agent. QA tasks are easy to evaluate, so the difficulty lies on creating the right tasks. They should be simple, diverse, self-contained and relevant. At the same time, any adult person with no specialized knowledge should be able to achieve 100 $\%$ accuracy on each task.
 
+With that purpose the authors of \cite{WestonBCM15} have created a set of 20 simple tasks, they believe that those tasks are a `prerequisite to full language understanding and reasoning'. These tasks were called the bAbI dataset. Without entering in the details of each task, it was designed to cover a variety of skills: from counting to positional reasoning. Here are some examples:
 
-With that purpose the authors of \cite{WestonBCM15} have created a set of 20 simple tasks, they believe that those tasks are a `prerequisite to full language understanding and reasoning'. Without entering in the details of each task, it was designed to cover a variety of skills: from counting to positional reasoning. By running a set of experiments with different models they observed that by using a memory network they achieve 95 $\%$ accuracy in most of the tasks (the mean performance was 93 $\%$).
+\textbf{Task 1: Simple Supporting Fact} 
+\begin{itemize} 
+\item[] Mary went to the bathroom.
+\item[] John moved to the hallway.
+\item[] Mary travelled to the office.
+\item[] Where is Mary? A: office
+\end{itemize}
 
-Here we will focus only in how logic, and logic relations were formulated in this framework and how it can be expanded.
+\vspace{0.3cm}
+
+\textbf{Task 7: Counting}
+\begin{itemize} 
+\item[] Daniel picked up the football.
+\item[] Daniel dropped the football.
+\item[] Daniel got the milk.
+\item[] Daniel took the apple.
+\item[] How many objects is Daniel holding? A: two
+\end{itemize} 
+
+By running a set of experiments with different models they observed that by using a memory network they achieve 95 $\%$ accuracy in most of the tasks (the mean performance was 93 $\%$).
+
+Here we will focus only in how the relations were formulated in this framework and how it can be expanded.
 
 \section{The logical entailment problem inside the bAbI task}
 \label{ch:03-tasks}
 
 
-In \cite{WestonBCM15}, among a variety of useful tasks the authors introduce two tasks that deals with logical inference: \textit{basic deduction} and \textit{basic induction}. The basic deduction task offers questions of the form:
+In \cite{WestonBCM15}, among a variety of useful tasks the authors introduce two tasks that deals with logical inference -- Task 15: \textit{basic deduction} and Task 16: \textit{basic induction}. The basic deduction task offers questions of the form:
 
 \begin{quote} 
 \centering 
@@ -313,14 +328,14 @@ What color is $c$? A: $C^{j}$\\
 
 Where $P^{j}$ is a animal, $C^{j}$ is a color, and $c^{j}$ is a name. Here the agent is asked to remember the relation between animal and color, and when presented a new name of an animal in the example, the agent should infer the color using past examples. Similar to the deduction task, in \cite{WestonBCM15} is reported that this task is completely solved.
 
-These two tasks present a first step towards \textit{a complete set of tasks to tests inference capabilities}. One aspect that is missing though is the use of logical operators such as \textit{boolean connectives} and \textit{first-order quantifiers}. Those operators play a big role on everyday speech, hence a natural way of expanding this work is by creating a set of tasks that make agents learn \textit{valid logic structures}.
-
 \section{Entailment-QA}
 \label{ch:03-EQA}
 
+These two tasks from the bAbI dataset present a first step towards \textit{a complete set of tasks to tests inference capabilities}. One aspect that is missing though is the use of logical operators such as \textit{boolean connectives} and \textit{first-order quantifiers}. Those operators play a big role on everyday speech, hence a natural way of expanding this work is by creating a set of tasks that make agents learn \textit{valid logic structures}. In this section we will give the details for such tasks. 
+
 To highlight the speech structure we will make use of an artificial language, but, to be clear, this is just an exposition tool. We are concerned in logical structures \textit{only used in everyday speech}.
 
-\textbf{Boolean Connectives} The first task is focused only on some propositional connectives $\land$ (and), $\lor$ (or), $\lnot$ (not). The agent is given two sentences $s_1$ and $s_2$, and he is asked if $s_1$ entails $s_2$ or not (a yes/no question). The position of the sentences is important here. We look at only six general cases:
+\textbf{Task 1: Boolean Connectives.} The first task is focused only on some propositional connectives $\land$ (and), $\lor$ (or), $\lnot$ (not). The agent is given two sentences $s_1$ and $s_2$, and he is asked if $s_1$ entails $s_2$ or not (a yes/no question). The position of the sentences is important here. We look at only six general cases:
 
 \begin{itemize}
 \item Entailment
@@ -368,7 +383,7 @@ Where $P$ is a predicate and $a$ is a name. The point here is not to demand that
 \item[]The first sentence implies the second sentence? A: no
 \end{itemize}
 
-\textbf{First-Order Quantifiers} Task 2 tries to capture the use of some basic \textit{quantifiers}. In this dataset we are trying to predict the entailment relationship between two sentences $s_1$ and $s_2$. We say that there is a \textit{entailment} relationship if $s_1$ implies $s_2$, we say that there is a \textit{contradiction} if the combination of sentences $s_1$ and $s_2$ implies an absurdity and if the combination of sentences does not imply an absurdity we say that they are \textit{neutral}. We have used six forms of logical relations for the quantifiers $\forall$ (for every) and $\exists$ (exists):
+\textbf{Task 2: First-Order Quantifiers.} Task 2 tries to capture the use of some basic \textit{quantifiers}. In this dataset we are trying to predict the entailment relationship between two sentences $s_1$ and $s_2$. We say that there is an \textit{entailment} relationship if $s_1$ implies $s_2$, we say that there is a \textit{contradiction} if the combination of sentences $s_1$ and $s_2$ implies an absurdity and if the combination of sentences does not imply an absurdity we say that they are \textit{neutral}. We have used six forms of logical relations for the quantifiers $\forall$ (for every) and $\exists$ (exists):
 
 \begin{itemize}
 \item Entailment
@@ -409,27 +424,24 @@ where $P$ and $Q$ are non-related predicates and $a$ is a name. So we have examp
 \end{itemize}
 
 
-The tasks above force the dialog system to predict entailment independently of the specific meaning of nouns, verbs and adjectives presented on speech. To balance that we intend to design four more tasks centered on \textit{generic semantic knowledge}.
+The tasks above force the dialog system to predict entailment independently of the specific meaning of nouns, verbs and adjectives presented on speech. We have created a first version of tasks 1 and 2, now we intend to design four more tasks centered on \textit{generic semantic knowledge}.
 
-\textbf{Synonymy} This task tests if a dialog system can identify paraphrase caused by synonym use. Two supporting facts are presented, the second differs from the first by one noun, verb or adjective that can be a synonym or not, e.g., "\textit{The girl is talking into the microphone. The girl is speaking. Are the above sentences duplicate?}".   
-
-
-\textbf{Antinomy} This task consists of recognizing contradictions by antinomy use. For example, the question "\textit{John is not an old person. John is young. Are the above sentences a contradiction?}" should be answered "no" and the question "\textit{Susan is happy. Susan is sad and she is crying. Are the above sentences a contradiction?}" should be answered "yes".
-
-\textbf{Hypernymy} When one term is a specific instance of another we say that there is a hypernymy relationship between then. For example, we say that "anthem" is a hyponym and "song" a hypernym, because anthem is a kind of song. Task 5 tests the kind of linguistic entailment caused by the use of hyponyms and hypernyms, e.g., "\textit{A woman is eating an apple. A woman is eating a fruit. Are the above sentences duplicate?}"
+\textbf{Task 3: Synonymy.} This task tests if a dialog system can identify paraphrase caused by synonym use. Two supporting facts are presented, the second differs from the first by one noun, verb or adjective that can be a synonym or not, e.g., "\textit{The girl is talking into the microphone. The girl is speaking. Are the above sentences duplicate?}".   
 
 
-\textbf{Active/Passive voice} Finally the last task is centered on the paraphrases originated by the changes from active to passive voice. So two supporting facts are presented, although they have a different syntactic structure, they share the same meaning. For example,  "\textit{A man is playing the piano. The piano is being played by a man. Are the above sentences duplicate?}".
+\textbf{Task 4: Antinomy.} This task consists of recognizing contradictions by antinomy use. For example, the question "\textit{John is not an old person. John is young. Are the above sentences a contradiction?}" should be answered "no" and the question "\textit{Susan is happy. Susan is sad and she is crying. Are the above sentences a contradiction?}" should be answered "yes".
+
+\textbf{Task 5: Hypernymy.} When one term is a specific instance of another we say that there is a hypernymy relationship between then. For example, we say that "anthem" is a hyponym and "song" a hypernym, because anthem is a kind of song. Task 5 tests the kind of linguistic entailment caused by the use of hyponyms and hypernyms, e.g., "\textit{A woman is eating an apple. A woman is eating a fruit. Are the above sentences duplicate?}"
+
+\textbf{Task 6: Active/Passive voice.} Finally the last task is centered on the paraphrases originated by the changes from active to passive voice. So two supporting facts are presented, although they have a different syntactic structure, they share the same meaning. For example,  "\textit{A man is playing the piano. The piano is being played by a man. Are the above sentences duplicate?}".
 
 It should be noted that we can formulate the notion of paraphrase as an entailment relation: if $s_1$ is a paraphrase of $s_2$, it is natural to say that $s_1$ implies $s_2$ and vice-versa. This is done in \cite{Marelli14}. Although this approach presents no problem it can alienate some people from the machine learning community: this community normally deals  with problems of similarity between sentences, there is very little datasets available centered on the notion of entailment. So although we have mentioned only paraphrase detection in tasks 3--6 the entailment relationship is present.
 
 
-\section{Approach}
-\label{ch:03-Approach}
+\section{Preliminary Results}
+\label{ch:03-PreliminaryResults}
 
-% \cite{BordesW16, Lowe:2016, Serban:2016c, Serban:2016a,Shao:2017,Wen}
-
-We will only consider \textit{neural network based end-to-end dialog systems}, these are the most important models today \cite{BordesW16, Lowe:2016, Serban:2016c, Serban:2016a, Shao:2017, Wen}. To organize all experiment in an unified framework we decided to use the platform ParlAI \cite{MillerFFLBBPW17}. Our criteria for a \textit{semantic robust dialog agent} is not an agent that is only tuned for the Entailment-QA tasks mentioned above, but an agent that performs well across all established tasks (like the bAbI tasks \cite{WestonBCM15}) and performs reasonably on the Entailment-QA tasks 1-6. Here "reasonably" means that the agent should exceed a random agent by a significant margin.
+To organize all experiment in an unified framework we decided to use the platform ParlAI \cite{MillerFFLBBPW17}. Our criteria for a \textit{semantic robust dialog agent} is not an agent that is only tuned for the Entailment-QA tasks mentioned above, but an agent that performs well across all established tasks (like the bAbI tasks \cite{WestonBCM15}) and performs reasonably on the Entailment-QA tasks 1-6. Here "reasonably" means that the agent should exceed a random agent by a significant margin.
 
 Right now we are in the process of creating the dataset. We have already built tasks 1 (boolean connectives) and 2 (first order quantifiers). They both are composed of 10000 questions for training and 1000 for testing.
 
@@ -461,36 +473,47 @@ We have used the dataset SICK (Sentence Involving Compositional Knowledge) \cite
 
 This QA task is composed of 23000 questions for training and 5900 for testing.
 
-\section{Preliminary results}
-\label{ch:03-preliminary-results}
-
 We have performed the first experiments using the sequence to sequence model \cite{Sustskever}(with and without attention: Seq2seq and Seq2seqAtt, respectively) and the memory network model (MenNN) \cite{WestonCB14}.
 
-So far these models show unsatisfactory results, as can be seen in Figure 1.
+So far these models show unsatisfactory results, as can be seen in Figure \ref{EntailQAresults}.
 
 \begin{center}
-\includegraphics[width=10.0cm]{img/comparative_results.png}
-% \captionof{figure}{Test accuracy for the Entailment-QA tasks}
+\begin{figure}[h]
+\label{EntailQAresults}
+\includegraphics[width=13.0cm]{img/comparative_results.png}
+\caption{Accuracy results for the Entailment-QA tasks}
+\end{figure}
 \end{center}
 
 Their overall performance is only slightly better when compared to the random agent. For example, when we look at the memory model, the model that often  outperform the seq2seq model on QA tasks \cite{WestonBCM15}, we can see that regarding tasks 1 and 2 there is an overfitting problem: the model shows high accuracy on the train dataset (75$\%$ accuracy on task 1, and 86$\%$ accuracy on task 2) as can be seen in Figure 2. But when we take a closer look at the confusion matrix of the test data, Figure 3, the results are not impressive.\footnote{All the experiments and the respective results are available on GitHub: \url{https://github.com/felipessalvatore/DialogGym}.}
   
 
 \begin{center}
-\includegraphics[width=10.0cm]{img/training_acc_EntailQA_mem.png}
-% \captionof{figure}{Training accuracy for the memory network}
+\begin{figure}[h]
+\includegraphics[width=13.0cm]{img/training_acc_EntailQA_mem.png}
+\caption{Training accuracy for the memory network}
+\end{figure}
 \end{center}
 
 
 \begin{center}
-\includegraphics[width=10.0cm]{img/cm_mem_EntailQA2.png}
-% \captionof{figure}{Confusion matrix for the memory network on task 2}
+\begin{figure}[h]
+\includegraphics[width=13.0cm]{img/cm_mem_EntailQA2.png}
+\caption{Confusion matrix for the memory network on task 2}
+\end{figure}
 \end{center}
 
 
-\section{KDD comments}
-The paper presents a high quality and very interesting research. The concept of incorporating logic reasoning to boost performance of dialogue agent is very promising and employed by the authors in a novel way. The paper is focused on logical reasoning, the area that is often neglected by Conversational AI developers. Splitting the analysis for synonymy, antinomy, hypernymy and active or passive voice is hard to find in recent academic literature. These features make it an outstanding paper.
+The results so far may seen grim, but they show also a positive side: \textit{the Entailment-QA tasks are not a set of trivial tasks that can be completely solved by the current models}. These results indicated that it is worthwhile to explore this set of task with more detail, either by improving the training using the current models or by exploring new kinds of models. One thing should be clear, we are not concern in obtaining high accuracy on these tasks only (just as a comparison, in \cite{S14-2055} is reported an accuracy of $87\%$ on the SICK dataset by using feature engineering techniques). The main idea is to use an end-to-end QA model to obtain good results in the Entailment-QA task without compromising the accuracy on other well established QA tasks.  
 
+
+\section{Feedback}
+
+
+KDD review:
+
+\begin{quote}
 The Entailment-QA analysis of Neural Network dialog systems on 11000 questions provides interesting results. The fact that the overall accuracy is below 50$\%$ in many cases, points out a significant issue in the current phase of conversational AI. My only concern is that the methods of the research fall outside of Artificial Intelligence (AI) / Machine Learning (ML) domain which makes the paper less relevant to the workshop.
 
 The paper is focused on specific issues of Conversation AI, in particular on complex semantic relationships. The paper is not covering machine learning aspects of Conversation AI. Instead the authors discuss a rule-based approach in more details. The paper would be a good fit for a workshop focused on rule-based methods in Conversational AI and for a workshop focused on automatic testing methods for chatbots. Due to the limitations on the number of accepted papers, this high quality paper might not make it to the short list. I would encourage the authors to proceed with their efforts to publish the paper elsewhere or come back next time when the workshop will have enough bandwidth.
+\end{quote}
