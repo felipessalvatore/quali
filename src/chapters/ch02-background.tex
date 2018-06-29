@@ -294,10 +294,15 @@ For example, suppose the training pair $(\vect{x}^{(1)}, \dots, \vect{x}^{(n)}, 
 \vect{s} = f_{enc}(\vect{x}^{(n)}, \vect{h}^{(n-1)})
 \end{equation}
 
-Then using the control English sentence as a target, at each time $t$ we compute the cross entropy error between the decoder prediction $f_{dec}(\vect{y}^{(t)}, {\vect{h}^{\prime}}^{(t-1)})$ and the target $\vect{y}^{(t+1)}$ ($\vect{y}^{(0)}$ is the $<eos>$ token). The decoder uses the vector representation of the source sentence $\vect{s}$ as an initial hidden state (i.e., ${\vect{h}^{\prime}}^{(0)} = \vect{s}$). The how goal of this model is to to approximate the probability distribution over the tokens from the target language given the sentence of the source language, i.e.,
+Then using the control English sentence as a target, at each time $t$ we compute the cross entropy error between the decoder prediction $f_{dec}(\vect{y}^{(t)}, \vect{\tilde{h}}^{(t-1)})$ and the target $\vect{y}^{(t+1)}$ ($\vect{y}^{(0)}$ is the $<eos>$ token). The decoder uses the vector representation of the source sentence $\vect{s}$ as an initial hidden state (i.e., $\vect{\tilde{h}}^{(0)} = \vect{s}$). The how goal of this model is to to approximate the probability distribution over the tokens from the target language given the sentence of the source language, i.e.,
 
 \begin{equation}
-p(y_t | y_1, \dots, y_{t-1}, x_1, \dots, x_{n}) = f_{dec}(\vect{y}^{(t)}, {\vect{h}^{\prime}}^{(t-1)})
+\vect{\tilde{h}}^{(t)} = f_{dec}(\vect{y}^{(t)}, \vect{\tilde{h}}^{(t-1)})
+\end{equation}
+
+\begin{equation}
+\label{decpred}
+p(y_t | y_1, \dots, y_{t-1}, x_1, \dots, x_{n}) = softmax(\vect{W}_{s}  \vect{\tilde{h}}^{(t)} + \vect{b}_s)
 \end{equation}
 
 One limitation of this architecture is that in some cases the source sentence has more features than the decoder embedding $\vect{s}$ can properly summarize. To address that some attention mechanisms were introduced.
@@ -305,32 +310,36 @@ One limitation of this architecture is that in some cases the source sentence ha
 \section{Attention}
 \label{sec:Attention}
 
- No modelo de atenção vamos contruir um vetor de contexto $\vect{c}_t$ para selecionar as informações na sentença de entrada.\\
- Uma vez costruido $\vect{c}_t$, definimos um estado de atenção
+The attention-based models are models built on top of the seq2seq architecture. The encoding part continues the same as before, but now at each time $t$ a context vector $\vect{c}^{(t)}$ is defined to capture relevant source-side information to help the prediction of the current target word $\vect{y}^{(t)}$. Once $\vect{c}^{(t)}$ is constructed the attention hidden state is defined as:   
 
 \begin{equation}
-\vect{\tilde{h}}_t = tahn(\vect{W}_c[\vect{c}_t;\vect{h}_t])
+\vect{\tilde{h}}^{(t)} = tahn(\vect{W}_c[\vect{c}^{(t)};\vect{h}^{(t)}])
 \end{equation}
 
-e geramos a predição
+the model's prediction is the same as the one defined in \ref{decpred}.
+
+The core of this technique is the definition of $\vect{c}^{(t)}$. There are different strategies available, here we will focus only on one: \textit{global attention}.
+
+Let $\vect{a} \in \mathbb{R}^{m,n}$. We will use this matrix as an alignment matrix, i.e., at the end of the training $\vect{a}_{ts}$ should reflect the probability of the source representation $\vect{h}^{(s)}$ be relevant for the output $\hat{y}^{(t)}$. We define $\vect{a}_{ts}$ as
+
 
 \begin{equation}
-p(y_t | y_1, \dots, y_{t-1}, x_1, \dots, x_{n}) = softmax(\vect{W}_{s}  \vect{\tilde{h}}_t + \vect{b}_s)
+\vect{a}_{ts} = \frac{exp(score(\vect{\tilde{h}}_t,\vect{h}_s))}{\sum_j exp(score(\vect{\tilde{h}}_t,\vect{h}_j))}
 \end{equation}
 
+Where $score$ is a content-based function that can have different implementations: 
 
-Como definimos $\vect{c}_t$? Construimos uma matrix de alinhamento $a$ tal que
-
-\begin{itemize}
-\item $a_{ts}$ é a probabilidade da representação de entrada $\vect{h}_s$ ser relevante para a saída $\hat{y}_t$.
-\item $a_{ts} = \frac{exp(score(\vect{\tilde{h}}_t,\vect{h}_s))}{\sum_j exp(score(\vect{\tilde{h}}_t,\vect{h}_j))}$ 
-\item $score(\vect{\tilde{h}}_t,\vect{h}_s) = \begin{cases}
+\begin{equation}
+score(\vect{\tilde{h}}_t,\vect{h}_s) = \begin{cases}
 \vect{\tilde{h}}_t ^{\top}\vect{h}_s\\
 \vect{\tilde{h}}_t ^{\top}\vect{W}_a \vect{h}_s\\
 \vect{v}_a ^{\top}tahn(\vect{W}_a[\vect{\tilde{h}}_t;\vect{h}_s])\\
-\end{cases}$ 
-\item $\vect{c}_t$ é uma soma ponderada de todas as representações de entrada: 
-\begin{equation}
-\vect{c}_t = \sum_{s=1}^{n} a_{ts}\vect{h}_s
+\end{cases}
 \end{equation}
-\end{itemize}
+
+At the end, a global context vector $\vect{c}^{(t)}$ is computed as the weighted average, according to $\vect{a}^{(t)}$ over all source states:
+
+\begin{equation}
+\vect{c}^{(t)} = \sum_{s} \vect{a}_{ts}\vect{h}^{(s)}
+\end{equation}
+
