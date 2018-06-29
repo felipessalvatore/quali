@@ -2,10 +2,10 @@
 \label{ch:02-background}
 
 
-\subsection{Machine learning}
+\section{Machine Learning}
 
 
-\subsection{Neural network}
+\section{Neural Networks}
 
 
 A neural network is a non-linear function $f(\vect{x}; \theta)$. It is defined by a collection of parameters $\vect{\theta}$ and a collection of non-linear transformations. It is usual to represent $f$ as a compositions of functions:
@@ -22,19 +22,19 @@ The output of these intermediary functions are referred as \textit{layers}. So i
 
 
 
-Different deep learning architectures are used in NLP: \textbf{convolutional architectures} have a good performance in tasks were it is required to find a linguistic indicator regardless of its position (e.g., document classification, short-text categorization, sentiment classification, etc); high quality word embeddings can be achieved with models that are a kind of \textbf{feedforward neural network} \cite{Mikolov23}. But for a variety of works in natural language we want to capture regularities and similarities in a text structure. That is way \textbf{recurrent} and \textbf{recursive} models have been widely used in the field. Here we are focused on generative models and since recurrent models have been producing very strong results for language modeling \cite{goldberg15}, we will concentrate on them.
+Different deep learning architectures are used in NLP: \textit{convolutional architectures} have a good performance in tasks were it is required to find a linguistic indicator regardless of its position (e.g., document classification, short-text categorization, sentiment classification, etc); high quality word embeddings can be achieved with models that are a kind of \textit{feedforward neural network} \cite{Mikolov23}. But for a variety of works in natural language we want to capture regularities and similarities in a text structure. That is way \textit{recurrent} and \textit{recursive} models have been widely used in the field. Here we are focused on generative models and since recurrent models have been producing very strong results for language modeling \cite{goldberg15}, we will concentrate on them.
 
-\section{RNN}
+\section{Recurrent Neural Network}
 \label{sec:RNN}
 
 
-Recurrent Neural Network is a family of neural network specialized in sequential data $\vect{x}_1, \dots, \vect{x}_\tau$. As a neural network, a RNN is a parametrized function that we use to approximate one hidden function from the data. As before we can take the simplest RNN as a neural network with only one hidden layer. But now, what make RNNs unique is a recurrent definition of one of its hidden layer:
+\textit{Recurrent neural network} (RNN) is a family of neural network specialized in sequential data $\vect{x}_1, \dots, \vect{x}_\tau$. As a neural network, a RNN is a parametrized function that we use to approximate one hidden function from the data. As before we can take the simplest RNN as a neural network with only one hidden layer. But now, what make RNNs unique is a recurrent definition of one of its hidden layer:
 
 \begin{equation}
 \vect{h}^{(t)} = g(\vect{h}^{(t-1)}, \vect{x}^{(t)}; \vect{\theta})
 \end{equation}
 
-$\vect{h}^{(t)}$ is called \textit{state}, \textit{hidden state}, or \textbf{cell}.
+$\vect{h}^{(t)}$ is called \textit{state}, \textit{hidden state}, or \textit{cell}.
 
 
 \par This recurrent equation can be unfolded for a finite number of steps $\tau$. For example, when $\tau =3$:
@@ -46,11 +46,7 @@ $\vect{h}^{(t)}$ is called \textit{state}, \textit{hidden state}, or \textbf{cel
  & = g(g(g(\vect{h}^{(0)}, \vect{x}^{(1)}; \vect{\theta}), \vect{x}^{(2)}; \vect{\theta}), \vect{x}^{(3)}; \vect{\theta})\\
 \end{align}
 
-
-Hence for any finite step $\tau$ we can describe the model as a DAG \ref{RNNSimplifiedUnfolded}.
-
-
-Using a concret example consider the following model define by the equations:
+Using a concret example consider the following classification model define by the equations:
 
 \begin{equation}
 f(\vect{x}^{(t)}, \vect{h}^{(t-1)}; \vect{V}, \vect{W}, \vect{U}, \vect{c}, \vect{b}) = \vect{\hat{y}}^{(t)}
@@ -68,27 +64,25 @@ f(\vect{x}^{(t)}, \vect{h}^{(t-1)}; \vect{V}, \vect{W}, \vect{U}, \vect{c}, \vec
 \vect{h}^{(t)} = \sigma(\vect{W} \vect{h}^{(t-1)} + \vect{U} \vect{x}^{(t)} + \vect{b})
 \end{equation}
 
-Using the graphical representation the model can be view as:
+This kind of model can create an output $\vect{\hat{y}}^{(t)}$ at each time $t$, or the model can produce a single output $\vect{\hat{y}}$ after processing an entire input sequence. This choice depends on the learning problem that is being modeled.
 
+With the model's prediction at hand, we can use a loss function (like cross entropy for the classification problem) and apply the back-propagation algorithm to optimize the model. These models look complex, but it quite straightforward to compute the gradients \cite[p.~374]{DeepLearningbook}.
 
-!!! explicar como funciona o treinamento !!!
+Although this kind of deep learning model is very useful, it presents a severe flaw. When computing the gradients there is a lot of repeated matrix multiplication using the recurrent weight matrix (in the example above, the matrix $\vect{W}$). Depending on some configurations of this matrix \textit{the gradients may vanish or explode exponentially with respect to the number of time steps}.
 
-An RNN with a loss function:
+Thus, handing long-term dependencies became a problem when using RNNs. Different solutions were proposed, the most effective results came from some modifications of this model. We will present the two most famous modifications: the gated recurrent unit and the long short-term memory. 
 
-
-
-\section{GRU}
+\section{Gated Recurrent Unit}
 \label{sec:GRU}
 
-
-To capture long-term dependencies on a RNN  the authors of the paper \cite{ChungGCB14}  proposed a new architecture called \textbf{gated recurrent unit} (\textbf{GRU}). This model was constructed to make each hidden state  $\vect{h}^{(t)}$ to adaptively capture dependencies of different time steps. It work as follows, at each step $t$ one candidate for hidden state is formed:
+To capture long-term dependencies on a RNN  the authors of the paper \cite{ChungGCB14}  proposed a new architecture called \textit{gated recurrent unit} (GRU). This model was constructed to make each hidden state  $\vect{h}^{(t)}$ to adaptively capture dependencies of different time steps. It work as follows, at each step $t$ one candidate for hidden state is formed:
 
 \begin{equation}
 \vect{\widetilde{h}}^{(t)} = tahn(\vect{W} (\vect{h}^{(t-1)} \odot  \vect{r}^{(t)}) + \vect{U} \vect{x}^{(t)} + \vect{b})
 \end{equation}
 
 
-where $\vect{r}^{(t)}$ is a vector with values in $[0, 1]$ called a \textbf{reset gate}, i.e.,  a vector that at each entry outputs the probability of reseting the  corresponding entry in the previous hidden state $\vect{h}^{(t-1)}$. Together with $\vect{r}^{(t)}$ we define an \textbf{update gate}, $\vect{u}^{(t)}$. It is also a vector with values in $[0, 1]$. Intuitively we can say that this vector decides how much on each dimension we will use the candidate update. Both $\vect{r}^{(t)}$ and $\vect{u}^{(t)}$ are defined by $\vect{h}^{(t-1)}$ and $\vect{x}^{(t)}$; they also have specific parameters:
+where $\vect{r}^{(t)}$ is a vector with values in $[0, 1]$ called a \textit{reset gate}, i.e.,  a vector that at each entry outputs the probability of reseting the  corresponding entry in the previous hidden state $\vect{h}^{(t-1)}$. Together with $\vect{r}^{(t)}$ we define an \textit{update gate}, $\vect{u}^{(t)}$. It is also a vector with values in $[0, 1]$. Intuitively we can say that this vector decides how much on each dimension we will use the candidate update. Both $\vect{r}^{(t)}$ and $\vect{u}^{(t)}$ are defined by $\vect{h}^{(t-1)}$ and $\vect{x}^{(t)}$; they also have specific parameters:
 
 \begin{equation}
 \vect{r}^{(t)} = \sigma(\vect{W}_{r} \vect{h}^{(t-1)} + \vect{U}_{r} \vect{x}^{(t)} + \vect{b}_{r})
@@ -107,20 +101,11 @@ At the end the new hidden state $\vect{h}^{(t)}$ is defined by the recurrence:
 
 Note that the new hidden state combines the candidate hidden state $\vect{\widetilde{h}}^{(t)}$ with the past hidden state $\vect{h}^{(t-1)}$ using both $\vect{r}^{(t)}$ and $\vect{u}^{(t)}$ to adaptively copy and forget information.
 
-\par It can appear more complex, but we can view the GRU model just as a refinement of the standard RNN with a new computation for the hidden state. Let $\vect{\theta} = [ \vect{W},\vect{U},\vect{b} ]$, $\vect{\theta}_{u} = [ \vect{W}_{u},\vect{U}_{u},\vect{b}_{u} ]$  and $\vect{\theta}_{r} = [ \vect{W}_{r},\vect{U}_{r},\vect{b}_{r} ]$; and $\text{aff}(\vect{\theta})$ be the following operation:
-
-\begin{equation}
-\text{aff}(\vect{\theta}) = \vect{W} \vect{h} + \vect{U} \vect{x} + \vect{b}
-\end{equation}
-
-With similar definitions for $\text{aff}(\vect{\theta}_{u})$ and $\text{aff}(\vect{\theta}_{r})$. Figure \ref{GRU} shows the hidden state of the GRU model for time step $t$. If compared with Figure \ref{RNNGraphExpanded} we can see that the basic structure is the same, just the way of computing the hidden state $\vect{h}^{(t)}$ has changed.
-
-
-\section{LSTM}
+\section{Long Short-Term Memory}
 \label{sec:LSTM}
 
 
-\textit{Long short-term memory} (LSTM) is one of the most applied versions of the RNN family of models. Historically it was developed before the GRU model, but conceptually we can think in the RNN as an expansion of the model presented in the last session. Because of notation differences they can look different. LSTM is based also with parametrized gates; in this case three: the \textbf{forget gate}, $\vect{f}^{(t)}$, the \textbf{input gate}, $\vect{i}^{(t)}$, and the \textbf{output gate}, $\vect{o}^{(t)}$. There gates are defined only by $\vect{h}^{(t-1)}$ and $\vect{x}^{(t)}$ with specific parameters:
+\textit{Long short-term memory} (LSTM) is one of the most applied versions of the RNN family of models. Historically it was developed before the GRU model, but conceptually we can think in the RNN as an expansion of the model presented in the last session. Because of notation differences they can look different. LSTM is also based on parametrized gates; in this case three: the \textit{forget gate}, $\vect{f}^{(t)}$, the \textit{input gate}, $\vect{i}^{(t)}$, and the \textit{output gate}, $\vect{o}^{(t)}$. The gates are defined only by $\vect{h}^{(t-1)}$ and $\vect{x}^{(t)}$ with specific parameters:
 
 \begin{equation}
 \vect{f}^{(t)} = \sigma(\vect{W}_{f} \vect{h}^{(t-1)} + \vect{U}_{f} \vect{x}^{(t)} + \vect{b}_{f})
@@ -134,7 +119,7 @@ With similar definitions for $\text{aff}(\vect{\theta}_{u})$ and $\text{aff}(\ve
 \vect{o}^{(t)} = \sigma(\vect{W}_{o} \vect{h}^{(t-1)} + \vect{U}_{o} \vect{x}^{(t)} + \vect{b}_{o})
 \end{equation}
 
-Intuitively $\vect{f}^{(t)}$ should control how much informative be discarded, $\vect{i}^{(t)}$ controls how much information will be updated, and $\vect{o}^{(t)}$ controls how munch each component should be outputted. A candidate cell, $\tilde{\vect{c}}^{(t)}$ is formed:
+Intuitively $\vect{f}^{(t)}$ should control how much informative will be discarded, $\vect{i}^{(t)}$ controls how much information will be updated, and $\vect{o}^{(t)}$ controls how munch each component should be outputted. A candidate cell, $\tilde{\vect{c}}^{(t)}$ is formed:
 
 \begin{equation}
 \tilde{\vect{c}}^{(t)} = tahn(\vect{W} \vect{h}^{(t-1)} + \vect{U} \vect{x}^{(t)} + \vect{b})
@@ -153,6 +138,7 @@ The new hidden state, $\vect{h}^{(t)}$, is formed by filtering $\vect{c}^{(t)}$:
 \end{equation}
 
 
+Until now we have presented general deep learning theory, now we will focus on the specificities of these models applied to natural language problems.
 
 
 \section{Language model}
@@ -204,7 +190,7 @@ for any $(n-1)$-sequence of words $x_{1}, \dots ,x_{n-1}$.
 
 We start with a corpus $C$ with $T$ tokens and a vocabulary $\Vocab$.\\\
 
-Example: \textbf{Make Some Noise} by the Beastie Boys.\\
+Example: \textit{Make Some Noise} by the Beastie Boys.\\
 
 \begin{quote}
 Yes, here we go again, give you more, nothing lesser\\
