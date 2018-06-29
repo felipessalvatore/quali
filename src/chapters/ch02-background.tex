@@ -34,7 +34,7 @@ Different deep learning architectures are used in NLP: \textit{convolutional arc
 \label{sec:RNN}
 
 
-\textit{Recurrent neural network} (RNN) is a family of neural network specialized in sequential data $\vect{x}_1, \dots, \vect{x}_\tau$. As a neural network, a RNN is a parametrized function that we use to approximate one hidden function from the data. As before we can take the simplest RNN as a neural network with only one hidden layer. But now, what make RNNs unique is a recurrent definition of one of its hidden layer:
+\textit{Recurrent neural network} (RNN) is a family of neural network specialized in sequential data $\vect{x}^{(1)}, \dots, \vect{x}^{(\tau)}$. As a neural network, a RNN is a parametrized function that we use to approximate one hidden function from the data. As before we can take the simplest RNN as a neural network with only one hidden layer. But now, what make RNNs unique is a recurrent definition of one of its hidden layer:
 
 \begin{equation}
 \vect{h}^{(t)} = g(\vect{h}^{(t-1)}, \vect{x}^{(t)}; \vect{\theta})
@@ -209,13 +209,13 @@ The best is yet to come, and yes, believe this\\
 \end{quote}
 
 
-From this corpus we can construct a vocabulary list $\Vocab$ as follows: after preprocessing the text we create a list of the most frequent words (in this case we can take all words) with the size $V$ (here $V=28$). Hence, we can treat each word in the text either by an index referring to the word position on $\Vocab$ or as a one-hot vector that codifies this index (e.g., "the" would be identified with $0$, "yes" with $1$, "we" with $2$, and so on).
+From this corpus we can construct a vocabulary list $\Vocab$ as follows: after preprocessing the text we create a list of the most frequent words (in this case we can take all words) with the size $V$ (here $V=27$). Hence, we can treat each word in the text either by an index referring to the word position on $\Vocab$ or as a one-hot vector that codifies this index (e.g., "the" would be identified with $0$, "yes" with $1$, "we" with $2$, and so on).
 
 Then, the dataset is the collection of words 
 \[
-D = \{(<sos>, \text{Yes}), (\text{Yes}, \text{here}), (\text{here}, \text{we}),\dots,(\text{believe}, \text{this}), (\text{this}, <eos>)\}
+D = \{(<eos>, \text{Yes}), (\text{Yes}, \text{here}), (\text{here}, \text{we}),\dots,(\text{believe}, \text{this}), (\text{this}, <eos>)\}
 \]
-where $<sos>$ and $<eos>$ are the "star of sentence" and "end of sentence" tokens, respectively (these tokes are also members of $\Vocab$).
+where $<eos>$ is "end of sentence" tokens (also a member of $\Vocab$).
 
 A simple recurrent language model $f(\vect{x}^{(t)}, \vect{\theta})$ is defined by the following equations:
 
@@ -249,14 +249,11 @@ The loss $L$ is the mean of all point-wise losses
 L(\vect{\theta})=\frac{1}{T}\sum_{t=1}^{T}L^{(t)}(\vect{\theta})
 \end{equation}
 
-
-
 With the loss function defined, we apply some optimization algorithm like \textit{stochastic gradient descent} to choose the optimal parameters for the language model:
 
 \begin{equation}
 \vect{\theta}^{*} = \argmin_{\vect{\theta}} L(\vect{\theta})
 \end{equation}
-
 
 Because of the historical connections with information theory, the \textit{perplexity} ($PP$) metric is often used to evaluate a language model. This metric can be thought as the weighted average branching factor of a language.
 
@@ -286,32 +283,24 @@ Hence,
 
 Thus, by finding the parameters that minimize the cross entropy error we are also minimizing the perplexity of the language model. 
 
-
-
-
-
-\section{Sequence to sequence (seq2seq)}
+\section{Sequence-to-Sequence (seq2seq)}
 \label{sec:Seq2seq}
 
-\begin{itemize}
-\item $\vect{x}_1, \dots, \vect{x}_n$ sentença de entrada (source)
-\item $\vect{y}_1, \dots, \vect{y}_m$ sentença de saida (target)
-\item $\vect{s} = f_{enc}(\vect{x}_n, \vect{h}_{n-1})$ representação  até a entrada $\vect{x}_n$
-\begin{itemize}
-\item $\vect{h}_0$ iniciado aleatoriamemnte
-\item $\vect{h}_n = \vect{s}$  
-\end{itemize}
-\item $\vect{h}^{\prime}_j = f_{dec}(\vect{y}_j, \vect{h}^{\prime}_{j-1})$ representação saida no instante $j$
-\begin{itemize}
-\item $\vect{h}^{\prime}_0 = \vect{s}$
-\end{itemize}
+There is one powerful application of RNN based language model. The authors from \cite{Sustskever} used two RNNs to create an end-to-end translation model that is now know as \textit{the encoder-decoder} or \textit{the sequence-to-sequence} architecture. This architecture is define as follows: let $\vect{x}^{(1)}, \dots, \vect{x}^{(n)}$ be a source sentence in the one-hot representation,  let $\vect{y}^{(1)}, \dots, \vect{y}^{(m)}$ be the target sentence also in in the one-hot format. $f_{enc}$ (the \textit{encoder}) is a RNN with the sole purpose of creating a vector representation of the sequences of the input language. $f_{dec}$ (the \textit{decoder}) is a language model for the target language. These models are trained together mapping source sentences to target sentences.
 
-\item $p(y_j | y_1, \dots, y_{j-1}, x_1, \dots, x_{n}) = softmax(\vect{W}_{s}  \vect{h}^{\prime}_j + \vect{b}_s)$
-\item $\hat{y}_j = \argmax p(y_j | y_1, \dots, y_{j-1}, x_1, \dots, x_{n})$
+For example, suppose the training pair $(\vect{x}^{(1)}, \dots, \vect{x}^{(n)}, \vect{y}^{(1)}, \dots, \vect{y}^{(m)})$ is ("Nas tardes de fazenda há muito azul demais", "In the farm’s afternoons there is too much blue"). Here we want the model to translate one Portuguese sentence to an English one. We first encode the Portuguese in the vector $\vect{s}$, i.e.,
 
-\end{itemize}
+\begin{equation}
+\vect{s} = f_{enc}(\vect{x}^{(n)}, \vect{h}^{(n-1)})
+\end{equation}
 
+Then using the control English sentence as a target, at each time $t$ we compute the cross entropy error between the decoder prediction $f_{dec}(\vect{y}^{(t)}, {\vect{h}^{\prime}}^{(t-1)})$ and the target $\vect{y}^{(t+1)}$ ($\vect{y}^{(0)}$ is the $<eos>$ token). The decoder uses the vector representation of the source sentence $\vect{s}$ as an initial hidden state (i.e., ${\vect{h}^{\prime}}^{(0)} = \vect{s}$). The how goal of this model is to to approximate the probability distribution over the tokens from the target language given the sentence of the source language, i.e.,
 
+\begin{equation}
+p(y_t | y_1, \dots, y_{t-1}, x_1, \dots, x_{n}) = f_{dec}(\vect{y}^{(t)}, {\vect{h}^{\prime}}^{(t-1)})
+\end{equation}
+
+One limitation of this architecture is that in some cases the source sentence has more features than the decoder embedding $\vect{s}$ can properly summarize. To address that some attention mechanisms were introduced.
 
 \section{Attention}
 \label{sec:Attention}
