@@ -157,149 +157,134 @@ P(x_1,x_2,x_3,x_4) = p
 
 This model is used for different NLP tasks such as speech recognition, machine translation, text auto-completion, spell correction, question answering, summarization and many others.
 
-The classical approuch to a languange model was to use the chain rule and a markovian assumptiom, i.e., for a specific $n$ we assume that:
+The classical approach to a language model was to use the chain rule of probability and a Markovian assumption, i.e., for a specific $n$ we assume that:
 
 \begin{equation}
 P(x_1, \dots, x_T) = \prod_{t=1}^{T} P(x_t \vert x_1, \dots, x_{t-1}) = \prod_{t=1}^{T} P(x_{t} \vert x_{t - (n+1)}, \dots, x_{t-1})
 \end{equation} 
 
 
-This gave raise to models based on $n$-gram statistics. The choice of $n$ yields different models; for example 
-\textit{Unigram} language model ($n=1$): 
+This gave raise to models based on $n$-gram statistics. The choice of $n$ yields different models; for example, the 
+\textit{unigram} language model ($n=1$) is defined as: 
 \begin{equation}
 P_{uni}(x_1, x_2, x_3, x_4) = P(x_1)P(x_2)P(x_3)P(x_4)
 \end{equation}
 
-where $P(x_i) = count(x_i)$.\\
+where $P(x_i) = count(x_i)$ and $count()$ is a function that counts tokens occurrence in a corpus.\\
 
-\textit{Bigram} language model ($n=2$): 
+Similarly the \textit{bigram} language model ($n=2$) is defined as: 
 \begin{equation}
 P_{bi}(x_1,x_2,x_3,x_4) = P(x_1)P(x_2\vert x_1)P(x_3\vert x_2)P(x_4\vert x_3)
 \end{equation} 
 where
-
 \begin{equation}
 P(x_i\vert x_j) = \frac{count(x_i, x_j)}{count(x_j)}
 \end{equation} 
 
+Whit these basic statistics we can already define a language model, but as higher $n$-grams yields better performance. This comes with a price, at the same time higher $n$-grams requires a lot of memory\cite{Heafield}. That is the motive that $n$-grams based language models trained on large corpora uses at most $5$-grams. 
 
-Higher $n$-grams yields better performance. But at the same time higher $n$-grams requires a lot of memory\cite{Heafield}.
+Since \cite{Mikolov11} the approach has change, instead of using one approach that is specific for the language domain, we can use a general model for sequential data prediction, a RNN. The RNN's ability to deal with unrestricted size sequence input permits to abandon the $n$-gram model's restricted context assumption.
 
-Since \cite{Mikolov11} the approach has change, instead of using one approach that is specific for the language domain, we can use a general model for sequential data prediction: a RNN.
+To understand the language model task as a machine learning task, some details should be clear. 
 
-So, our learning task is to estimate the probability distribution 
+First, the learning task is to estimate the probability distribution 
 
-\[
+\begin{equation}
+\label{languagedistri}
 P(x_{n} = \text{word}_{j^{*}} | x_{1}, \dots ,x_{n-1})
-\]
+\end{equation}
 
 for any $(n-1)$-sequence of words $x_{1}, \dots ,x_{n-1}$.
 
-We start with a corpus $C$ with $T$ tokens and a vocabulary $\Vocab$.\\\
 
-Example: \textit{Make Some Noise} by the Beastie Boys.\\
+Second, the function $f$ being used to approximate \ref{languagedistri} is trained on a corpus in the following way: each word $x_t$ of the corpus will be used as input to $f$ (in the form of an one-hot vector), and the immediate subsequent word, say $x_{t+1}$, will be used as a target. The training is done by minimizing the cross entropy between the model's output and the probability distribution given by the target.
+
+One example is in order. Suppose our corpus $\corpus$ is compose only by the lines below:
 
 \begin{quote}
 Yes, here we go again, give you more, nothing lesser\\
 Back on the mic is the anti-depressor\\
 Ad-Rock, the pressure, yes, we need this\\
 The best is yet to come, and yes, believe this\\
-... \\
 \end{quote}
 
-\begin{itemize}
-\item $T = 378$
-\item $|\Vocab| = 186$
-\end{itemize}
 
+From this corpus we can construct a vocabulary list $\Vocab$ as follows: after preprocessing the text we create a list of the most frequent words (in this case we can take all words) with the size $V$ (here $V=28$). Hence, we can treat each word in the text either by an index referring to the word position on $\Vocab$ or as a one-hot vector that codifies this index (e.g., "the" would be identified with $0$, "yes" with $1$, "we" with $2$, and so on).
 
-The dataset is a collection of pairs $(\vect{x},\vect{y})$ where $\vect{x}$ is one word and $\vect{y}$ is the immediately next word. For example:
-\begin{itemize}
-\item [] $(\vect{x}^{(1)}, \vect{y}^{(1)}) =$ (Yes, here).
-\item [] $(\vect{x}^{(2)}, \vect{y}^{(2)}) =$ (here, we)
-\item [] $(\vect{x}^{(3)}, \vect{y}^{(3)}) =$ (we, go)
-\item [] $(\vect{x}^{(4)}, \vect{y}^{(4)}) =$ (go, again)
-\item [] $(\vect{x}^{(5)}, \vect{y}^{(5)}) =$ (again, give)
-\item [] $(\vect{x}^{(6)}, \vect{y}^{(6)}) =$ (give, you)
-\item [] $(\vect{x}^{(7)}, \vect{y}^{(7)}) =$ (you, more)
-\item [] $\dots$
-\end{itemize}
+Then, the dataset is the collection of words 
+\[
+D = \{(<sos>, \text{Yes}), (\text{Yes}, \text{here}), (\text{here}, \text{we}),\dots,(\text{believe}, \text{this}), (\text{this}, <eos>)\}
+\]
+where $<sos>$ and $<eos>$ are the "star of sentence" and "end of sentence" tokens, respectively (these tokes are also members of $\Vocab$).
 
-Notation
-
-\begin{itemize}
-\item $\vect{E} \in \mathbb{R}^{d,|\Vocab|}$ is the matrix of word embeddings.
-\vspace{0.3cm}
-\item $\vect{x}^{(t)} \in \mathbb{R}^{|\Vocab|}$ is one-hot word vector at time step $t$.
-\vspace{0.3cm}
-\item $\vect{y}^{(t)} \in \mathbb{R}^{|\Vocab|}$ is the ground truth at time step $t$ (also an one-hot word vector).
-\end{itemize}
-
-The language model is similar as the RNN described above. It is defined by the following equations:
+A simple recurrent language model $f(\vect{x}^{(t)}, \vect{\theta})$ is defined by the following equations:
 
 \begin{equation}
 \vect{e}^{(t)} = \vect{E}\vect{x}^{(t)}
 \end{equation}
 \vspace{0.2cm}
- \begin{equation}
+\begin{equation}
 \vect{h}^{(t)} = \sigma(\vect{W}\vect{h}^{(t-1)}+ \vect{U}\vect{e}^{(t)}+ \vect{b})
 \end{equation}
 \vspace{0.2cm}
 \begin{equation}
-\vect{\hat{y}}^{(t)} = softmax(\vect{V}\vect{h}^{(t)} + \vect{c})
+f(\vect{x}^{(t)}, \vect{\theta}) = \vect{\hat{y}}^{(t)} = softmax(\vect{V}\vect{h}^{(t)} + \vect{c})
 \end{equation}
 
+where $\vect{E} \in \mathbb{R}^{d,V}$ is the matrix of word embeddings, $\vect{x}^{(t)} \in \mathbb{R}^{V}$ is one-hot word vector at time step $t$, $\vect{y}^{(t)} \in \mathbb{R}^{V}$ is the ground truth at time step $t$ (also a one-hot word vector).
 
-
-At each time $t$ the point-wise loss is:
-
-\vspace{0.2cm}
+For each word $x_t$ let $j_t$ be the index of the subsequent word, so at each time $t$ the point-wise loss is:
 
 \begin{align}
-L^{(t)} &= CE(\vect{y}^{(t)},\vect{\hat{y}}^{(t)})\\
-    &= - \log(\vect{\hat{y}}_{j^{*}})\\
-        &= - \log P(x^{(t+1)} = \text{word}_{j^{*}}|x^{(1)}, \dots, x^{(t)})
+\label{lossCE}
+L^{(t)}(\vect{\theta}) &= CrossEntropy(\vect{y}^{(t)},\vect{\hat{y}}^{(t)})\\
+    &= - \log({\vect{\hat{y}}^{(t)}}_{j_t})\\
+        &= - \log P(x_{t+1} = \text{word}_{j_t}|x_{1}, \dots, x_{t})\\
+        &= - \log P(x_{t+1}|x_{1}, \dots, x_{t})
 \end{align}
 
-The loss $L$ is the mean of all the point-wise losses
+The loss $L$ is the mean of all point-wise losses
+
 \begin{equation}
-L=\frac{1}{T}\sum_{t=1}^{T}L^{(t)}
+L(\vect{\theta})=\frac{1}{T}\sum_{t=1}^{T}L^{(t)}(\vect{\theta})
 \end{equation}
 
 
-Evaluating a language model. We can evaluate a  language model using a \textit{extrinsic evaluation}: How our model perform in a NLP task such as text auto-completion. Or a \textit{intrinsic evaluation}: Perplexity (PP) can be thought as the weighted average branching factor of a language.
+
+With the loss function defined, we apply some optimization algorithm like \textit{stochastic gradient descent} to choose the optimal parameters for the language model:
+
+\begin{equation}
+\vect{\theta}^{*} = \argmin_{\vect{\theta}} L(\vect{\theta})
+\end{equation}
 
 
-Given $C= x_1, x_2, \dots, x_T$, we define the perplexity of $C$ as:
+Because of the historical connections with information theory, the \textit{perplexity} ($PP$) metric is often used to evaluate a language model. This metric can be thought as the weighted average branching factor of a language.
+
+Given $\corpus = x_1, x_2, \dots, x_T$, we define the perplexity of $\corpus$ ($PP(\corpus)$) as:
 
 \begin{align}
-PP(C) &= P(x_1, x_2, \dots, x_T)^{-\frac{1}{T}}\\
-    & \\
+PP(\corpus) &= P(x_1, x_2, \dots, x_T)^{-\frac{1}{T}}\\
       &= \sqrt[T]{\frac{1}{P(x_1, x_2, \dots, x_T)}}\\
-      & \\
       &= \sqrt[T]{\prod_{i=1}^{T}\frac{1}{P(x_i \vert x_1,\dots, x_{i-1})}}
 \end{align}
 
-we can relate Loss and Perplexity:
-
-Since
-\begin{align}
-L^{(t)} & = - \log P(x^{(t+1)} |x^{(1)}, \dots, x^{(t)})\\
-& =  \log(\frac{1}{P(x^{(t+1)}|x^{(1)}, \dots, x^{(t)})})\\
-\end{align}
-We have that:
+Using \ref{lossCE} we can relate cross entropy loss and perplexity:
 
 \begin{align}
-        L &=\frac{1}{T} \sum_{t=1}^{T} L^{(t)}\\
+        L(\vect{\theta}) &=\frac{1}{T} \sum_{t=1}^{T} L^{(t)}(\vect{\theta})\\
+          &=\frac{1}{T} \sum_{t=1}^{T} - \log P(x_{t+1}|x_{1}, \dots, x_{t})\\
+          &=\frac{1}{T} \sum_{t=1}^{T} \log ((\frac{1}{P(x_{t+1}|x_{1}, \dots, x_{t})})\\
           &= \log\left( \sqrt[T]{\prod_{i=1}^{T}\frac{1}{P(x_i \vert x_1,\dots, x_{i-1})}} \right)\\
-          &= \log(PP(C))
+          &= \log(PP(\corpus))
 \end{align}
 
-So another definition of perplexity is
+Hence,
 
 \begin{equation}
-2^{L} = PP(C)
+2^{L(\vect{\theta})} = PP(\corpus)
 \end{equation}
+
+Thus, by finding the parameters that minimize the cross entropy error we are also minimizing the perplexity of the language model. 
 
 
 
