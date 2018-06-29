@@ -305,15 +305,58 @@ So another definition of perplexity is
 
 
 
-\section{Seq2seq}
+\section{Sequence to sequence (seq2seq)}
 \label{sec:Seq2seq}
 
-fsdfdsfdsf
+\begin{itemize}
+\item $\vect{x}_1, \dots, \vect{x}_n$ sentença de entrada (source)
+\item $\vect{y}_1, \dots, \vect{y}_m$ sentença de saida (target)
+\item $\vect{s} = f_{enc}(\vect{x}_n, \vect{h}_{n-1})$ representação  até a entrada $\vect{x}_n$
+\begin{itemize}
+\item $\vect{h}_0$ iniciado aleatoriamemnte
+\item $\vect{h}_n = \vect{s}$  
+\end{itemize}
+\item $\vect{h}^{\prime}_j = f_{dec}(\vect{y}_j, \vect{h}^{\prime}_{j-1})$ representação saida no instante $j$
+\begin{itemize}
+\item $\vect{h}^{\prime}_0 = \vect{s}$
+\end{itemize}
+
+\item $p(y_j | y_1, \dots, y_{j-1}, x_1, \dots, x_{n}) = softmax(\vect{W}_{s}  \vect{h}^{\prime}_j + \vect{b}_s)$
+\item $\hat{y}_j = \argmax p(y_j | y_1, \dots, y_{j-1}, x_1, \dots, x_{n})$
+
+\end{itemize}
 
 
 
-\section{Atention}
-\label{sec:Atention}
+\section{Attention}
+\label{sec:Attention}
 
-fksdhfjsdgjf
+ No modelo de atenção vamos contruir um vetor de contexto $\vect{c}_t$ para selecionar as informações na sentença de entrada.\\
+ Uma vez costruido $\vect{c}_t$, definimos um estado de atenção
 
+\begin{equation}
+\vect{\tilde{h}}_t = tahn(\vect{W}_c[\vect{c}_t;\vect{h}_t])
+\end{equation}
+
+e geramos a predição
+
+\begin{equation}
+p(y_t | y_1, \dots, y_{t-1}, x_1, \dots, x_{n}) = softmax(\vect{W}_{s}  \vect{\tilde{h}}_t + \vect{b}_s)
+\end{equation}
+
+
+Como definimos $\vect{c}_t$? Construimos uma matrix de alinhamento $a$ tal que
+
+\begin{itemize}
+\item $a_{ts}$ é a probabilidade da representação de entrada $\vect{h}_s$ ser relevante para a saída $\hat{y}_t$.
+\item $a_{ts} = \frac{exp(score(\vect{\tilde{h}}_t,\vect{h}_s))}{\sum_j exp(score(\vect{\tilde{h}}_t,\vect{h}_j))}$ 
+\item $score(\vect{\tilde{h}}_t,\vect{h}_s) = \begin{cases}
+\vect{\tilde{h}}_t ^{\top}\vect{h}_s\\
+\vect{\tilde{h}}_t ^{\top}\vect{W}_a \vect{h}_s\\
+\vect{v}_a ^{\top}tahn(\vect{W}_a[\vect{\tilde{h}}_t;\vect{h}_s])\\
+\end{cases}$ 
+\item $\vect{c}_t$ é uma soma ponderada de todas as representações de entrada: 
+\begin{equation}
+\vect{c}_t = \sum_{s=1}^{n} a_{ts}\vect{h}_s
+\end{equation}
+\end{itemize}
