@@ -1,12 +1,18 @@
 \chapter{Background}
 \label{ch:02-background}
 
+We can make human language manageable to computers by using a sort of different methods and techniques. This is the bread and butter of any NLP researcher. Here, following today's NLP community, we will focus only in the techniques derived from the machine learning field. In this chapter, we will present some abstract machine learning models follow by some applications in NLP. 
 
 \section{Machine Learning}
 
+\textit{Machine learning} is the branch of computer science that deals with programs that can improve with experience (i., learn). Machine learning is divided into three main subareas: \textit{supervised learning}, \textit{reinforcement learning} and \textit{unsupervised learning}.
+
+Here we will work with supervised learning only. In this setting, we assume that the process of interest is defined by an unknown function $g:X\rightarrow Y$. We try to approximate $g$ by changing the parameters of a function $f$ through an optimization process. The optimization is done by defining an \textit{error function} that evaluates how well $f$ approximates $g$ in the part of $g$ that we have access: the training data $D = \{(\vect{x}_1, \vect{y}_1), \dots ,(\vect{x}_N, \vect{y}_N)\}$ (where $g(\vect{x}_i)=\vect{y}_i$).
+
+
+$f$ can be a function from any family of models. One family that is having a lot of success for language tasks is the \textit{neural network} family.
 
 \section{Neural Networks}
-
 
 A neural network is a non-linear function $f(\vect{x}; \theta)$. It is defined by a collection of parameters $\vect{\theta}$ and a collection of non-linear transformations. It is usual to represent $f$ as a compositions of functions:
 
@@ -149,7 +155,7 @@ We call \textit{language model} a probability distribution over sequences of tok
 P(x_1,x_2,x_3,x_4) = p
 \]
 
-This model is used for different nlp tasks such as speech recognition, machine translation, text auto-completion, spell correction, question answering, summarization and many others.
+This model is used for different NLP tasks such as speech recognition, machine translation, text auto-completion, spell correction, question answering, summarization and many others.
 
 The classical approuch to a languange model was to use the chain rule and a markovian assumptiom, i.e., for a specific $n$ we assume that:
 
@@ -171,9 +177,10 @@ where $P(x_i) = count(x_i)$.\\
 P_{bi}(x_1,x_2,x_3,x_4) = P(x_1)P(x_2\vert x_1)P(x_3\vert x_2)P(x_4\vert x_3)
 \end{equation} 
 where
-\[
+
+\begin{equation}
 P(x_i\vert x_j) = \frac{count(x_i, x_j)}{count(x_j)}
-\]
+\end{equation} 
 
 
 Higher $n$-grams yields better performance. But at the same time higher $n$-grams requires a lot of memory\cite{Heafield}.
