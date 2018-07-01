@@ -6,18 +6,18 @@
 \section{Using neural networks to generate dialog}
 \label{ch:03-gen}
 
-\par For some time the main paradigm in AI was the so called \textbf{knowledge base approach}: the main goal of AI was to develop intelligent systems capable of solving certain classes of problems by having a \textit{representation} or \textit{model} of the world. In this view, a decision by a machine is synonymous to \textit{inferring in a formal language}\cite{McCarthy}. This was applied to the dialog system ELIZA developt at MIT in 1964 \cite{Weizenbaum}. The ELIZA system was built with a very precise dialog model, it tried to simulate a Rogerian psychologist. So in a conversation with a human the human's statements were reflected back at them based on an algorithm that transforms the human's sentence using a keyword rank system.
+\par For some time the main paradigm in AI was the so called \textit{knowledge base approach}: the main goal of AI was to develop intelligent systems capable of solving certain classes of problems by having a \textit{representation} or \textit{model} of the world. In this view, a decision by a machine is synonymous to \textit{inferring in a formal language} \cite{McCarthy}. This was applied to the dialog system ELIZA developed at MIT in 1964 \cite{Weizenbaum}. The ELIZA system was built with a very precise dialog model, it tried to simulate a Rogerian psychologist. So in a conversation with a human the human's statements were reflected back at them based on an algorithm that transforms the human's sentence using a keyword rank system.
 
-\par A different point of view is that AI should construct systems that acquire their knowledge via \textit{data observation}. More useful than programming hand-coded rules in an AI agent, we should enable that agent to extract patters from the complexity of data. This is the \textbf{machine learning approach} and, regarding dialog generation, the models based on this point of view are the most important models today \cite{BordesW16, Lowe:2016, Serban:2016c, Serban:2016a, Shao:2017, Wen}.
+\par A different point of view is that AI should construct systems that acquire their knowledge via \textit{data observation}. More useful than programming hand-coded rules in an AI agent, we should enable that agent to extract patters from the complexity of data. This is the \textit{machine learning approach} and, regarding dialog generation, the models based on this point of view are the most important models today \cite{BordesW16, Lowe:2016, Serban:2016c, Serban:2016a, Shao:2017, Wen}.
 
 This point of view makes sense when we frame the dialog generation problem as a translation problem. As in the field of automatic translation, we can use the already available human-made translations as data to train a machine learning model. So all the complex translation rules will be learned from the data. In a similar way, we can also use already available dialog as data. To frame the dialog task between two agents A and B as a translation problem we need to see the dialog act as follows: the source language is the set of utterances spoken by A, the target language is the sentences of B, and so the dialog system is just a program translating massages from A to B. Hence, the dialog generation problem can be viewed as a simple \textit{context-to-response mapping}.
 
-\subsection{The sequence to sequence approach}
+\subsection{The seq2seq approach}
 
-Sequence to sequence (seq2seq) models are originally formulated to improve the automatic translation task \cite{Sustskever}. The authors of \cite{DBLP:journals/corr/VinyalsL15} were the first to use this model to generate dialog, since then this approach has deeply influenced the field of dialog generation. As we have seen, a seq2seq model encodes the source sentence in a vector $\vect{h}$ and uses this vector to initiate a language model. This can be used to model a dialog as follows: suposse we have recorded two agents A and B. We will use this dialog as the training data for our model. The model will try to predict how B would respond. Let $s = w_{A,1}, w_{A,2}, \dots, w_{A,n}$ be an utterance from A and  $x = w_{B,1}, w_{A,2}, \dots, w_{A,m}$ be the response from B (both $s$ and $x$ are a sequence of words). $s$ is the input to an encoder network, which is a RNN. The encodes summarizes the input utterance into a vector, say $\vect{h}$, and this vector is used to initiate the decoder model, which is another RNN. The decoder takes as input $x$ and at each time $t$ the model tries to predict the word $t+1$ using $w_{B,1}, w_{B,2}, ...., w_{B,t-1}, \vect{h}$. This became a multiclass classification task, and, as usual, we train the model by minimizing the cross entropy loss.
+The authors of \cite{DBLP:journals/corr/VinyalsL15} were the first to use this model to generate dialog, since then this approach has deeply influenced the field of dialog generation. As we have seen, a seq2seq model encodes the source sentence in a vector $\vect{h}$ and uses this vector to initiate a language model. This can be used to model a dialog as follows: suppose we have recorded two agents A and B. We will use this dialog as the training data for our model. The model will try to predict how B would respond. Let $x = x_{1}, x_{2}, \dots, x_{n}$ be an utterance from A and $y = y_{1}, y_{2}, \dots, y_{m}$ be the response from B (both $x$ and $y$ are a sequence of words). $x$ is the input to an encoder network, which is a RNN. The encodes summarizes the input utterance into a vector, say $\vect{s}$, and this vector is used to initiate the decoder model, which is another RNN. The decoder takes as input $y$ and at each time $t$ the model tries to predict the word $t+1$ using $y_{1}, y_{2}, ...., y_{t-1}, \vect{s}$. This became a multiclass classification task, and, as usual, we train the model by minimizing the cross entropy loss.
 
 
-After the model is trained we can use the same model to generate a new dialog as follows: the agent A gives an utterance and we use the encoder model to summarize this uterance in a vector $\vect{h}$ as before, but now we use the probability distribution learned by the decoder model (initialized by $\vect{h}$) to sample words until it generates an end-of-speech <eos> token (or until a upper bound for the uterance size is reached). This approach lead to interesting results, for example in \cite{DBLP:journals/corr/VinyalsL15} after they have trained the model on the OpenSubtitles dataset (a dataset compose of subtitles from different movies) the follow dialog was produced:
+After the model is trained we can use the same model to generate a new dialog as follows: the agent A gives an utterance and we use the encoder model to summarize this utterance in a vector $\vect{s}$ as before, but now we use the probability distribution learned by the decoder model (initialized by $\vect{s}$) to sample words until it generates an end-of-speech <eos> token (or until a upper bound for the utterance size is reached). This approach lead to interesting results, for example in \cite{DBLP:journals/corr/VinyalsL15} after they have trained the model on the OpenSubtitles dataset (a dataset compose of subtitles from different movies) the follow dialog was produced:
 
 \begin{itemize}
 \item \textbf{Human}: What is moral?
@@ -34,14 +34,14 @@ After the model is trained we can use the same model to generate a new dialog as
 \item \textbf{Machine}: I’m not ashamed of being a philosopher! 
 \end{itemize}
 
-The model is clearly learning some interesting responses, but we can observe that some answers are \textit{generic} (for example, answer the question "What is morality?" with another question "What is altruism?"). We can also see that the model lacks \textit{coherence on the responses}. It seems that the model fails to generate meaningful responses taking the dialog context into account. Solving this problem was the focus of the subsequent models.  
+The model is clearly learning some interesting responses, but we can observe that some answers are \textit{generic} (for example, when the model answer the question "What is morality?" with another question "What is altruism?"). We can also see that the model lacks \textit{coherence on the responses}. It seems that the model fails to generate meaningful responses taking the dialog context into account. Solving this problem was the focus of the subsequent models.  
 
 \subsection{The hierarchical recurrent encoder-decoder architecture} 
 
-For example, take the \textit{hierarchical recurrent encoder-decoder architecture} (HRED) model proposed in \cite{Serban:2016a}. In this setting a dialogue is viewed as a sequence of utterances $D= U_1 , \dots, U_M$ involving two interlocutors such that each $U_i$ contains a sequence of $N_i$ tokens, $U_i = w_{i,1} , \dots, w_{i,N_{i}}$. Each $w_{i,j}$ is a random variable taking values in $\Vocab\cup \A$ where $\Vocab$ is the vocabulary and $\A$ is the set of \textit{speech acts} (for example "pause" and "end of turn" are  speech acts). In this case the learning task is the same as the one from language modeling: we want to estimate the probability of one token (speech acts included) conditioned on the previously tokens:
+For example, take the \textit{hierarchical recurrent encoder-decoder architecture} (HRED) model proposed in \cite{Serban:2016a}. In this setting a dialogue is viewed as a sequence of utterances $D= U_1 , \dots, U_M$ involving two interlocutors such that each $U_i$ contains a sequence of $N_i$ tokens, $U_i = x_{i,1} , \dots, x_{i,N_{i}}$. Each $x_{i,j}$ is a random variable taking values in $\Vocab\cup \A$ where $\Vocab$ is the vocabulary and $\A$ is the set of \textit{speech acts} (for example "pause" and "end of turn" are  speech acts). In this case the learning task is the same as the one from language modeling: we want to estimate the probability of one token (speech acts included) conditioned on the previously tokens:
 
 \begin{equation}
-P(w_{i,j} | w_{i,1}, \dots , w_{i,j-1}, U_{1}, \dots U_{i-1})
+P(x_{i,j} | x_{i,1}, \dots , x_{i,j-1}, U_{1}, \dots U_{i-1})
 \end{equation}
 
 The different utterances $ U_1 , \dots, U_M $ will serve as a dialog corpus.
@@ -60,19 +60,19 @@ First the encoder RNN will encode the sentence $U_1$ in a vector $\vect{U}_1$, t
 \caption{HRED model}
 \end{figure}
 
-Note that in this model the prediction from the decoder model is conditioned on the hidden state of the context RNN.
+As can be seen in Figure 3.1, the prediction from the decoder model is conditioned on the hidden state of the context RNN.
 
 \subsection{The memory model} 
 
 One version of the RNN model that found success on the dialog task is the Memory Network model \cite{SukhbaatarSWF15}. In a memory model the recurrence reads from a possibly large external memory multiple times before outputting a token. To explain this model we will use a very simplified version of dialog: a question-answer example where the answer is composed of one word only. 
 
-Let $V$ be the vocabulary size, $U_1, ..., U_n$ be the context utterances (where $U_i = \langle w_{i,1} , \dots, w_{i,N_{i}} \rangle$), $q = \langle w_{1} , \dots, w_{l} \rangle$ a question and $a$ the answer. Here we use $w$ both as a token and as an one-hot vector representing the same token.
+Let $V$ be the vocabulary size, $U_1, ..., U_n$ be the context utterances (where $U_i = x_{i,1} , \dots, x_{i,N_{i}} $), $q = w_{1} , \dots, w_{l} $ a question and $a$ the answer. Here we use $w$ and $x_{i,j}$ both as a token and as an one-hot vector representing the same token.
 
 The memory model is defined by $k$ memory layers, each layer is compose of the following parts:
 
 
 \begin{itemize}
-\item $\{ {\vect{m}^{k}}_i\}$ is an $n$-sequence of \textit{memory vectors}. Where $i = 1, \dots, n$ and $\vect{m}^{k}_i = \sum_{j} \vect{A}^{k}w_{i,j}$.
+\item $\{ {\vect{m}^{k}}_i\}$ is an $n$-sequence of \textit{memory vectors}. Where $i = 1, \dots, n$ and $\vect{m}^{k}_i = \sum_{j} \vect{A}^{k}x_{i,j}$.
 \item  $\vect{u}^{k}$ is the \textit{input vector}, where
 \begin{equation}
 \vect{u}^{k}=
@@ -85,11 +85,11 @@ The memory model is defined by $k$ memory layers, each layer is compose of the f
 \begin{equation}
 {\vect{p}^{k}}_i = softmax({\vect{u}^{k}}^{\top} {\vect{m}^{k}}_i) 
 \end{equation}
-\item $\{ {\vect{c}^{k}}_i\}$ is another representation of the context $U_1, ..., U_n$ defined by another embedding matrix $\vect{C}$, i.e., $\vect{c}^{k}_i = \sum_{j} \vect{C}^{k}w_{i,j}$.
+\item $\{ {\vect{c}^{k}}_i\}$ is another representation of the context $U_1, ..., U_n$ defined by another embedding matrix $\vect{C}$, i.e., $\vect{c}^{k}_i = \sum_{j} \vect{C}^{k}x_{i,j}$.
 \item $\vect{o}^{k}$ is the memory layer's  \textit{output}. It is a sum over the transformed context $\{ {\vect{c}^{k}}_i\}$ weighted by the probability vector $\vect{p}^{k}$ defined by the input $\vect{u}^{k}$, i.e.,  $\vect{o}^{k}= \sum_{i} {\vect{p}^{k}}_i {\vect{c}^{k}}_i$.
 \end{itemize}
 
-Note that each memory layer $k$ is defined by three embedding matrices $\vect{A}^{k}, \vect{B}^{k}, \vect{C}^{k} \in \mathbb{R}^{V,d}$ where $d$, the size of the embedding, is a hyperparameter.
+Note that each memory layer $k$ is defined by three embedding matrices $\vect{A}^{k}, \vect{B}^{k}, \vect{C}^{k} \in \mathbb{R}^{d,V}$ where $d$, the size of the embedding, is a hyperparameter.
 
 After all the $K$ memory layers have computed their output, the model's prediction is a probability distribution over all the tokens in the vocabulary, remember here the answer is composed of one word only:
 \begin{equation}
@@ -102,7 +102,7 @@ After all the $K$ memory layers have computed their output, the model's predicti
 
 In the seminal paper by Alan Turing \cite{Turing} it is proposed a game to evaluate a dialog system. The idea behind the game was simple: three players A, B and C can interact only by nonpersonal communication. C knows that he will interact with a dialog system (A) and a person (B), but C does not know which is which. C should exchange some conversation both with A and B; after some time C should guess who is the dialog system and who is the human. The goal of A is to be as human as possible in order to fool C; and the goal of B is to help C come to the right answer.
 
-\par This is the famous \textit{Turing Test}. If the dialog system wins this game we say that \textit{it has passed the Turing Test}. For many people this is the holy grail of artificial intelligence. Although this is an interesting test for a philosophical investigation, for many applications we do not want a dialog system to emulate an human being. We just want that the system solve a very specific task (booking an airplane seat, asking for user information, etc.). So we will avoid such complex tests and focus on more simple approaches.
+\par This is the famous \textit{Turing Test}. If the dialog system wins this game we say that \textit{it has passed the Turing Test}. For many people this is the holy grail of AI. Although this is an interesting test for a philosophical investigation, for many applications we do not want a dialog system to emulate an human being. We just want that the system solve a very specific task (booking an airplane seat, asking for user information, etc.). So we will avoid such complex tests and focus on more simple approaches.
 
 
 \subsection{Human evaluation}
@@ -118,16 +118,16 @@ In \cite{Stent} the authors enumerate three criteria to judge a generated senten
 \item \textit{Readability}: efficacy of the generated sentence in a particular context.
 \end{enumerate}
 
-Adequacy and fluency are obvious criteria, but readability is also important. Take, for example, the generated response "If you don’t believe in god, then you don’t know." for the question "What is the definition of altruism?". It is a syntatic correct answer that is completely out of context.
+Adequacy and fluency are obvious criteria, but readability is also important. Take, for example, the generated response "If you don’t believe in god, then you don’t know." for the question "What is the definition of altruism?". It is a syntactic correct answer that is completely out of context.
 
-Regarding text generation, there should always be some kind of human evaluation, but an evaluation system that relies only on humans presents some severe disadvantages: i) the research results became non-reproducible; ii) the costs for running experiments increases dramatically. Because of the problems presented in using human judges, you can find in the literature the use of automatic metrics from the field of machine translation and automatic summarization.
+Regarding text generation, there should always be some kind of human evaluation, but an evaluation system that relies only on humans presents some severe disadvantages: i) the research results became non-reproducible; and ii) the costs for running experiments increases dramatically. Because of the problems presented in using human judges, you can find in the literature the use of automatic metrics from the field of machine translation and automatic summarization.
 
 
 \subsection{Automatic evaluation}
 
 \subsubsection{BLUE}
 
-One popular metric for automatic translation is called BLUE (bilingual evaluation understudy) \cite{Papineni2001}. It compares n-grams of the candidate translation with the n-grams of the reference translation and counts the number of matches. Let $s$ be a source sentence, $\hat{y}$ the hypothesis translation and $y$ a reference translations produced by a professional human translator. 
+One popular metric for automatic translation is called BLUE (bilingual evaluation understudy) \cite{Papineni2001}. It compares n-grams of the candidate translation with the n-grams of the reference translation and counts the number of matches. Let $x$ be a source sentence, $\hat{y}$ the hypothesis translation and $y$ a reference translations produced by a professional human translator. 
 
 To define the BLUE score for each translation we need to define first the $n$-gram precision $P_n$:
 
@@ -233,7 +233,7 @@ where $\beta$ is usually set to favour recal ($\beta = 1.2$).
 
 \subsection{The mismatch between human and automatic evaluation}
 
-Complaints about the mismatch between the automatic metrics and the human judgments are not new. In  \cite{Stent} the authors have observed that i) there  are  positive,  but  not  strong,  correlations  between  the  scores  of the automatic evaluation metrics and human judgments of adequacy; ii) there are negative correlations between the scores of the automatic metrics and human judgments of fluency. As can be seen on the table below:
+Complaints about the mismatch between the automatic metrics and the human judgments are not new. In  \cite{Stent} the authors have observed that i) there  are  positive,  but  not  strong,  correlations  between  the  scores  of the automatic evaluation metrics and human judgments of adequacy; and ii) there are negative correlations between the scores of the automatic metrics and human judgments of fluency. As can be seen on the table below:
 
 \begin{figure}[h]
 \label{stenttable}
@@ -244,10 +244,10 @@ Complaints about the mismatch between the automatic metrics and the human judgme
 BLEU & $0.39$ & $-0.49$ \\ \hline
 \end{tabular}
 \end{center}
-\caption{Correlation between $BLUE$ score and human judgments of adequacy and fluency (extract from\cite{Stent})}
+\caption{Correlation between $BLUE$ score and human judgments of adequacy and fluency (extract from \cite{Stent})}
 \end{figure}
 
-In a more recencent paper \cite{LiuLSNCP16}, the authors have trained two neural generative models for dialog (a LSTM language model and the HRED model) on two different datasets: the chit chat oriented Twitter dataset and the technical Ubuntu Dialogue Corpus.
+In a more recent paper \cite{LiuLSNCP16}, the authors have trained two neural generative models for dialog (a LSTM language model and the HRED model) on two different datasets: the chit chat oriented Twitter dataset and the technical Ubuntu Dialogue Corpus.
 
 After the models were training they were used to generate some sentences, these sentences were evaluated using both the automatic metrics and human judgments. 
 
@@ -286,7 +286,7 @@ What this paper indicates is that these metrics correlate very weakly with human
 \section{Creating simplified tasks as tests}
 \label{ch:03-tasks}
 
-Given all these limitations, one interesting strategy proposed in \cite{WestonBCM15} is to create a set of question answering (QA) synthetic tasks to test different capabilities of a dialog agent. QA tasks are easy to evaluate, so the difficulty lies on creating the right tasks. They should be simple, diverse, self-contained and relevant. At the same time, any adult person with no specialized knowledge should be able to achieve 100$\%$ accuracy on each task.
+Given all these limitations, one interesting strategy proposed in \cite{WestonBCM15} is to create a set of QA synthetic tasks to test different capabilities of a dialog agent. QA tasks are easy to evaluate, so the difficulty lies on creating the right tasks. They should be simple, diverse, self-contained and relevant. At the same time, any adult person with no specialized knowledge should be able to achieve 100$\%$ accuracy on each task.
 
 With that purpose the authors of \cite{WestonBCM15} have created a set of 20 simple tasks, they believe that those tasks are a "prerequisite to full language understanding and reasoning". These tasks were called the bAbI dataset. Without entering in the details of each task, it is sufficient to know that each task was designed to cover a variety of skills: from counting to positional reasoning. Here are some examples:\\
 
@@ -311,7 +311,7 @@ With that purpose the authors of \cite{WestonBCM15} have created a set of 20 sim
 
 By running a set of experiments with different models they observed that by using a variation of the memory network they achieve 95$\%$ accuracy in most of the tasks (the mean performance was 93$\%$).
 
-Here we will focus only in how the \textit{logic relations} were formulated in this framework and how it can be expanded.
+Here we will focus only in how the \textit{logic relations} were formulated in this framework and how they can be expanded.
 
 \section{The logical entailment problem inside the bAbI tasks}
 \label{ch:03-tasks}
@@ -471,7 +471,7 @@ To organize all experiment in an unified framework we decided to use the platfor
 
 Right now we are in the process of creating the dataset. We have already built tasks 1 (boolean connectives) and 2 (first order quantifiers). They both are composed of 10000 questions for training and 1000 for testing.
 
-We have used the dataset SICK (Sentence Involving Compositional Knowledge) \cite{Marelli14} as a proxy for tasks 3-6, since all the structures presented on those tasks are presented in this dataset. The SICK data is composed of a pairs of sentences and a label describing the entailment relation between the sentences. To cast this classification dataset as a question answering problem we have added a question and maintained the labels: 
+We have used the dataset SICK (Sentence Involving Compositional Knowledge) \cite{Marelli14} as a proxy for tasks 3-6, since all the structures presented on those tasks are presented in this dataset. The SICK data is composed of a pairs of sentences and a label describing the entailment relation between the sentences. To cast this classification dataset as a QA problem we have added a question and maintained the labels: 
 
 \begin{itemize} 
 \item[] A group of people are marching
@@ -499,7 +499,7 @@ We have used the dataset SICK (Sentence Involving Compositional Knowledge) \cite
 
 This QA task is composed of 23000 questions for training and 5900 for testing.
 
-We have performed the first experiments using the sequence to sequence model (with and without attention: Seq2seq and Seq2seqAtt, respectively) and the memory network model (MenNN).
+We have performed the first experiments using the seq2seq model (with and without attention: Seq2seq and Seq2seqAtt, respectively) and the memory network model (MenNN).
 
 So far these models show unsatisfactory results, as can be seen in Figure 3.4.
 

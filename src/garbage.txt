@@ -1,7 +1,0 @@
-We can frame the dialog task between two agents A and B as a translation problem: the source language is the set of utterances spoken by A, similarly, the target language is the sentences of B. Then, the dialog system is just a program translating massages from A to B. So it makes sense to consider the use of quantitative metrics for automatic translation, metrics like BLUE \cite{Papineni02bleu:a} and METEOR \cite{Lavie:2007:MAM:1626355.1626389}. But as pointed out by \cite{LiuLSNCP16, LoweSNCP16}, regarding dialog, \textit{these metrics correlate very weakly with human judgement}.
-
-
-An intelligent agent should distinguish between \textit{meaningful} and \textit{nonsensical} speech. To do that the agent can make use of background knowledge, but it can also point out \textit{gaps in the speech's rationality}. Logic is the study of reasoning. Over the time it became a complex discipline with its own concepts, tools and language. Here we will use some logical notions like \textit{entailment} and \textit{contradiction} to build a set of synthetic tasks. All tasks presented are focused on the distinction between \textit{sound} and \textit{unsound} speech. The difference between tasks resides in the use of certain semantic structures.
-
-
-The techniques to generate dialog fall under the broader field of \textit{text generation} (this field covers others interesting topics like automatic journalism and automatic summarization).
