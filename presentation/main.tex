@@ -201,13 +201,35 @@ At the end, a global context vector $\vect{c}^{(t)}$ is computed as the weighted
 \end{itemize}
 \end{frame}
 
-\begin{frame}{HRED}
-image
-\end{frame}
-
-
 \begin{frame}{MemNN}
-equations
+The memory model is defined by $k$ memory layers, each layer is compose of the following parts:
+
+
+\begin{itemize}
+\item $\{ {\vect{m}^{k}}_i\}$ is an $n$-sequence of \textit{memory vectors}. Where $i = 1, \dots, n$ and $\vect{m}^{k}_i = \sum_{j} \vect{A}^{k}x_{i,j}$.
+\item  $\vect{u}^{k}$ is the \textit{input vector}, where
+\begin{equation}
+\vect{u}^{k}=
+\begin{cases}
+\sum_{j} \vect{B}^{k}w_{j} & \text{if } k=1, \\
+\vect{u}^{k-1} + \vect{o}^{k-1}  & \text{otherwise}\\
+\end{cases}
+\end{equation}
+\item $\vect{p}^{k} \in \mathbb{R}^{n}$ is the \textit{match between the input vector} $\vect{u}^{k}$ \textit{and each memory vector} ${\vect{m}^{k}}_i$. $\vect{p}^{k}$ is defined as
+\begin{equation}
+{\vect{p}^{k}}_i = softmax({\vect{u}^{k}}^{\top} {\vect{m}^{k}}_i) 
+\end{equation}
+\item $\{ {\vect{c}^{k}}_i\}$ is another representation of the context $U_1, ..., U_n$ defined by another embedding matrix $\vect{C}$, i.e., $\vect{c}^{k}_i = \sum_{j} \vect{C}^{k}x_{i,j}$.
+\item $\vect{o}^{k}$ is the memory layer's  \textit{output}. It is a sum over the transformed context $\{ {\vect{c}^{k}}_i\}$ weighted by the probability vector $\vect{p}^{k}$ defined by the input $\vect{u}^{k}$, i.e.,  $\vect{o}^{k}= \sum_{i} {\vect{p}^{k}}_i {\vect{c}^{k}}_i$.
+\end{itemize}
+
+Note that each memory layer $k$ is defined by three embedding matrices $\vect{A}^{k}, \vect{B}^{k}, \vect{C}^{k} \in \mathbb{R}^{d,V}$ where $d$, the size of the embedding, is a hyperparameter.
+
+After all the $K$ memory layers have computed their output, the model's prediction is a probability distribution over all the tokens in the vocabulary, remember here the answer is composed of one word only:
+\begin{equation}
+\vect{\hat{a}}= softmax(\vect{W}(\vect{o}^{K}))
+\end{equation}
+
 \end{frame}
 
 
@@ -215,51 +237,123 @@ equations
 \section{How to evaluate dialogs?}
 
 
-\begin{frame}{Avaliação humana \cite{Lowe:2016}}
+\begin{frame}{Human evaluation  \cite{Lowe:2016}}
 \begin{center}
-\includegraphics[scale=0.4]{images/exemploEval1.png}
+\includegraphics[scale=0.2]{images/exemploEval1.png}
 \end{center}
+
+\begin{enumerate}
+\item \alert{Adequacy}: the meaning equivalence between the generated and control sentence. 
+\item \alert{Fluency}: the syntactic correctness of the generated sequence.
+\item \alert{Readability}: efficacy of the generated sentence in a particular context.
+\end{enumerate}
+
 \end{frame}
 
-
-
-
 \begin{frame}{BLEU (bilingual evaluation understudy) \cite{Papineni2001}}
-Essa métrica compara n-gramas (até 4) da resposta candidata com os n-gramas da refência da tradução e conta o numero de acertos. Essa métrica também penaliza traduções muito curtas:
+\begin{equation}
+P_n = \frac{\text{number of } n\text{-grams in both } \hat{y} \text{ and } y}{\text{number of } n\text{-grams appearing in } \hat{y}}
+\end{equation}    
 
-\begin{equation*}
-BLUE(r, \hat{r}) = min \left(1, \frac{len(\hat{r})}{len(r)} \right) \left(\prod_{n=1}^{4} precision_{n}(r, \hat{r}) \right)^{\frac{1}{4}}
-\end{equation*}
-em que $ precision_{n}(r, \hat{r})$ é o número de overlap de $n$ gramas de $r$ e $\hat{r}$ dividido pelo número de todos os $n$-gramas de $\hat{r}$. 
+We also define a brevity penalty ($BP$) for translations that are too short. Let $len(a)$ be the length of the sentence $a$, we define $BP$ as:
 
-\begin{itemize}
-\item $BLUE(r, \hat{r}) \in [0,1]$
-\end{itemize}
+\begin{equation}
+BP=
+\begin{cases}
+1 & \text{if } len(\hat{y}) > len(y) \\
+\exp\left( 1 - \frac{len(y)}{len(\hat{y})} \right) & \text{otherwise}
+\end{cases}
+\end{equation} 
+
+
+Hence, the BLEU score is define as:
+
+\begin{equation}
+BLEU = BP \; \exp \left(\frac{1}{N}  \sum_{n=1}^{N} \log P_n \right)
+\end{equation}
 \end{frame}
 
 
 \begin{frame}{METEOR}
-equations
+\begin{equation}
+P = \frac{\text{number of } \text{unigrams in both } \hat{y} \text{ and } y}{\text{number of } \text{unigrams appearing in } \hat{y}}
+\end{equation}    
+
+
+\begin{equation}
+R = \frac{\text{number of } \text{unigrams in both } \hat{y} \text{ and } y}{\text{number of } \text{unigrams appearing in } y}
+\end{equation}    
+
+We them combine these values using the harmonic mean:
+
+\begin{equation}
+F_{mean} = \frac{10 P R}{R + 9P}
+\end{equation}
+
+To take into account longer matches, this metric computes a penalty for the "chunkiness" of the alignment. The idea is to group the unigrams in fewest possible chunks. Here chunk is defined as a set of unigrams that are adjacent in $\hat{y}$ and in $y$. Hence the penalty is defined as
+
+\begin{equation}
+penalty = 0.5 \left( \frac{c}{um} \right)^{3}
+\end{equation}
+
+where $c$ is the number of $chunks$ and $um$ is the number of matched unigrams. Hence the METEOR score is defined as
+
+\begin{equation}
+METEOR = F_{mean} (1 - penalty)
+\end{equation}
 \end{frame}
 
 \begin{frame}{ROUGE}
-equations
+\begin{equation}
+P_{lcs} = \frac{lcs(\hat{y}, y)}{len(\hat{y})}
+\end{equation}    
+
+
+\begin{equation}
+R_{lcs} = \frac{lcs(\hat{y}, y)}{len(y)}
+\end{equation}
+
+\begin{equation}
+ROUGE_L = \frac{(1 + \beta^2) P_{lcs} R_{lcs}}{R_{lcs} + \beta^{2}P_{lcs}}
+\end{equation}
+
+where $\beta$ is usually set to favour recal ($\beta = 1.2$).
 \end{frame}
 
 
-\begin{frame}{Problems}
-\begin{center}
-\includegraphics[scale=0.23]{images/weak_corr.png}
-\end{center}
+\begin{frame}{Problems \cite{LiuLSNCP16}}
 
-"In particular, we show that these metrics (BLEU, METEOR, ROUGE) have only a small positive correlation on the chitchat oriented Twitter dataset, and no correlation at all on the technical Ubuntu Dialogue Corpus." \cite{LiuLSNCP16}
+\begin{table}[h]
+\centering
+\label{hownottable}
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\cellcolor{blue!50} metric & \cellcolor{blue!50} Spearman & \cellcolor{blue!50} $p$-value & \cellcolor{blue!50} Pearson &  \cellcolor{blue!50} $p$-value \\ \hline
+BLEU   & $0.34$   & $< 0.01$  & $0.14$  & $0.17$ \\ \hline
+METEOR & $0.19$   & $0.06$    & $0.19$  & $0.05$ \\ \hline
+ROUGE  & $0.12$   & $0.22$    & $0.1$   & $0.34$ \\ \hline  
+\end{tabular}
+\caption{Correlation between automatic metrics and human judgments based on dialog generated on Twitter}
+\end{table}
 
+\begin{table}[h]
+\centering
+\label{hownottable}
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\cellcolor{blue!50} metric & \cellcolor{blue!50} Spearman & \cellcolor{blue!50} $p$-value & \cellcolor{blue!50} Pearson &  \cellcolor{blue!50} $p$-value \\ \hline
+BLEU & $0.12$   & $0.23$    & $0.11$  & $0.26$    \\ \hline
+METEOR & $0.06$   & $0.53$    & $0.14$  & $0.16$     \\ \hline
+ROUGE & $0.05$   & $0.59$    & $0.06$  & $0.53$    \\ \hline
+\end{tabular}
+\caption{Correlation between automatic metrics and human judgments based on dialog generated on Ubuntu}
+\end{table}
 \end{frame}
 
-\section{De diálogos abertos para pequenas tarefas}
+\section{Creating simplified tasks as tests}
 
 \begin{frame}{bAbI \cite{WestonBCM15}}
-Criar uma série de pequenas tarefas para testar diferentes capacidades de um sistema de diálogo.
+One solution is to create a set of QA synthetic tasks to test different capabilities of a dialog agent.
 
 
 \begin{center}
@@ -287,20 +381,17 @@ Its goal is to provide researchers:
 
 \end{frame}
 
-\begin{frame}{Experimentos}
+\begin{frame}{Sanity check experiments}
 \begin{center}
 \includegraphics[scale=0.34]{images/comparative_results_babi1.png}
 \end{center}
 \end{frame}
 
-\begin{frame}{Experimentos}
+\begin{frame}{Sanity check experiments}
 \begin{center}
 \includegraphics[scale=0.34]{images/comparative_results_babi2.png}
 \end{center}
 \end{frame}
-
-
-
 
 \section{Entailment-QA}
 
@@ -504,7 +595,7 @@ SICK (Sentences Involving Compositional Knowledge) \cite{Marelli14}
 
 \begin{frame}{Preliminary Results}
 \begin{center}
-\includegraphics[scale=0.28]{images/training_acc_EntailQA2_mem.png}
+\includegraphics[scale=0.28]{images/training_acc_EntailQA_mem.png}
 \end{center}
 \end{frame}
 
@@ -518,23 +609,26 @@ SICK (Sentences Involving Compositional Knowledge) \cite{Marelli14}
 
 \begin{frame}{Future Steps}
 \begin{itemize}
-
-\item Terminar as tarefas
-
-\item Melhor o treinamento com os modelos atuais
-
-\item Explorar novos modelos
+\item Apply regularization strategies on the available models to overcome the reported overfitting problem. 
+\item Finish the Entailment-QA corpus to have a fine grain analysis of the result that we are seeing on the SICK corpus.
+\item Explore the different extensions for all mentioned models.
+\item Explore new models not mentioned here, like Dynamic Memory Networks \cite{KumarISBEPOGS15} and the models using the Memory Attention and Composition (MAC) cell \cite{Manning18}.
+\item Create a visual version of the Entailment-QA to test logical inference with images.
+\item There is a different literature that frames the dialog problem as an MDP (Markovian Decision Process) and a POMDP (Partially Observable Markovian Decision Process) applying different techniques of reinforcement learning (a recent example is \cite{Li:2016}). It is fruitful to investigate if these techniques can help our research.
+\item One of the main focused here is model comparison. It would be fruitful if we could use the available literature  on the theory of comparing models (e.g., \cite{BenavoliCDZ17}) to refine our analysis.
 \end{itemize}
 \end{frame}
 
 
 \begin{frame}{Schedule}
-image
+\begin{center}
+\includegraphics[scale=0.24]{images/workplan.png}
+\end{center}
 \end{frame}
 
 
 
-\begin{frame}[allowframebreaks]{Referências}
+\begin{frame}[allowframebreaks]{References}
 
   \bibliography{my_references}
   \bibliographystyle{abbrv}
