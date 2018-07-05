@@ -254,8 +254,7 @@ After all the $K$ memory layers have computed their output, the model's predicti
 \begin{equation}
 P_n = \frac{\text{number of } n\text{-grams in both } \hat{y} \text{ and } y}{\text{number of } n\text{-grams appearing in } \hat{y}}
 \end{equation}    
-
-We also define a brevity penalty ($BP$) for translations that are too short. Let $len(a)$ be the length of the sentence $a$, we define $BP$ as:
+\vspace{0.2cm}
 
 \begin{equation}
 BP=
@@ -264,9 +263,7 @@ BP=
 \exp\left( 1 - \frac{len(y)}{len(\hat{y})} \right) & \text{otherwise}
 \end{cases}
 \end{equation} 
-
-
-Hence, the BLEU score is define as:
+\vspace{0.2cm}
 
 \begin{equation}
 BLEU = BP \; \exp \left(\frac{1}{N}  \sum_{n=1}^{N} \log P_n \right)
@@ -274,7 +271,7 @@ BLEU = BP \; \exp \left(\frac{1}{N}  \sum_{n=1}^{N} \log P_n \right)
 \end{frame}
 
 
-\begin{frame}{METEOR}
+\begin{frame}{METEOR (Metric for Evaluation of Translation with Explicit ORdering) \cite{Lavie}}
 \begin{equation}
 P = \frac{\text{number of } \text{unigrams in both } \hat{y} \text{ and } y}{\text{number of } \text{unigrams appearing in } \hat{y}}
 \end{equation}    
@@ -284,26 +281,17 @@ P = \frac{\text{number of } \text{unigrams in both } \hat{y} \text{ and } y}{\te
 R = \frac{\text{number of } \text{unigrams in both } \hat{y} \text{ and } y}{\text{number of } \text{unigrams appearing in } y}
 \end{equation}    
 
-We them combine these values using the harmonic mean:
 
 \begin{equation}
 F_{mean} = \frac{10 P R}{R + 9P}
 \end{equation}
-
-To take into account longer matches, this metric computes a penalty for the "chunkiness" of the alignment. The idea is to group the unigrams in fewest possible chunks. Here chunk is defined as a set of unigrams that are adjacent in $\hat{y}$ and in $y$. Hence the penalty is defined as
-
-\begin{equation}
-penalty = 0.5 \left( \frac{c}{um} \right)^{3}
-\end{equation}
-
-where $c$ is the number of $chunks$ and $um$ is the number of matched unigrams. Hence the METEOR score is defined as
 
 \begin{equation}
 METEOR = F_{mean} (1 - penalty)
 \end{equation}
 \end{frame}
 
-\begin{frame}{ROUGE}
+\begin{frame}{ROUGE (Recall Oriented Understudy for Gisting Evaluation) \cite{Lin}}
 \begin{equation}
 P_{lcs} = \frac{lcs(\hat{y}, y)}{len(\hat{y})}
 \end{equation}    
