@@ -20,225 +20,154 @@
 \maketitle
 
 
-\begin{frame}{Geração de diálogo}
-\begin{center}
-\includegraphics[scale=0.16]{images/turing.jpg}
-\end{center}
+\begin{frame}{Problema de pesquisa}
+falar do que vou pesquisar
 \end{frame}
 
 
-\begin{frame}{Sistemas de diálogo}
-\begin{itemize}
-\item \alert{Goal-driven systems}:
-\begin{itemize}
-\item serviços de suporte técnico
-\item marketing      
-\item sistemas de reserva
-\item sistemas de informação
-\end{itemize}
+% \begin{frame}{Sistemas de diálogo}
+% \begin{itemize}
+% \item \alert{Goal-driven systems}:
+% \begin{itemize}
+% \item serviços de suporte técnico
+% \item marketing      
+% \item sistemas de reserva
+% \item sistemas de informação
+% \end{itemize}
 
-\vspace{0.4cm}
-\item \alert{Non-goal-driven systems}
-\begin{itemize}
-\item Conversas livres (sem fim específico)
-\end{itemize}
-\end{itemize}
+% \vspace{0.4cm}
+% \item \alert{Non-goal-driven systems}
+% \begin{itemize}
+% \item Conversas livres (sem fim específico)
+% \end{itemize}
+% \end{itemize}
+% \end{frame}
 
+\section{Background}
 
-\end{frame}
-
-\section{Sistemas de diálogo baseados em redes neurais}
-
-\begin{frame}{Modelos de linguagem baseados em redes neurais}
-Nos chamamos de \alert{modelo de linguagem} uma distribuição de probabildiade sobre uma sequencia de tokens em uma lingua natural.
-
-\[
+\begin{frame}{Neural network based language model}
+We call \alert{language model} a probability distribution over sequences of tokens in a natural language.
+\begin{equation}
 P(x_1,x_2,x_3,x_4) = p
-\]
+\end{equation}
 
-Em vez de usar uma abordagem que seja específica para o domínio da linguagem natural, podemos usar um modelo para predição de dados sequencias:  \textbf{uma rede recorrente (RNN)}. \\
+Since \cite{Mikolov11}, we can use a \alert{Recurrent Neural Network (RNN)} to estimate the probability distribution   \\
 
-Nossa tarefa de aprendizado é estimar a distribuição de probabilidade
+\begin{equation}
+P(x_{n} = \text{word}_{j^{*}} | x_{1}, \dots ,x_{n-1})
+\end{equation}
 
-\[
-P(x_{n} = \text{palavra}_{j^{*}} | x_{1}, \dots ,x_{n-1})
-\]
-
-para qualquer $(n-1)$ sequencia de palavras $x_{1}, \dots ,x_{n-1}$.
-
+for any $(n-1)$-sequence of words $x_{1}, \dots ,x_{n-1}$.
 \end{frame}
 
-\begin{frame}{O modelo de linguagem com RNN}
+\begin{frame}{Neural network based language model}
 \input{tikzfiles/LanguageModelUnfolded}
 \end{frame}
 
 
 
 \begin{frame}{GRU: Gated Recurrent Units}
-\begin{center}
-\includegraphics[scale=0.25]{images/gru.png}
-\end{center}
-\end{frame}
+\begin{equation}
+\vect{\widetilde{h}}^{(t)} = tahn(\vect{W} (\vect{h}^{(t-1)} \odot  \vect{r}^{(t)}) + \vect{U} \vect{x}^{(t)} + \vect{b})
+\end{equation}
+
+where $\vect{r}^{(t)}$ is a vector with values in $[0, 1]$ called a \textit{reset gate}, i.e.,  a vector that at each entry outputs the probability of reseting the  corresponding entry in the previous hidden state $\vect{h}^{(t-1)}$. Together with $\vect{r}^{(t)}$ we define an \textit{update gate}, $\vect{u}^{(t)}$. It is also a vector with values in $[0, 1]$. Intuitively we can say that this vector decides how much on each dimension we will use the candidate update. Both $\vect{r}^{(t)}$ and $\vect{u}^{(t)}$ are defined by $\vect{h}^{(t-1)}$ and $\vect{x}^{(t)}$; they also have specific parameters:
+
+\begin{equation}
+\vect{r}^{(t)} = \sigma(\vect{W}_{r} \vect{h}^{(t-1)} + \vect{U}_{r} \vect{x}^{(t)} + \vect{b}_{r})
+\end{equation}
 
 
-% \begin{frame}{LSTM: Long Short Term Memory}
-% \begin{center}
-% \includegraphics[scale=0.23]{images/lstm.png}
-% \end{center}
-% \end{frame}
+\begin{equation}
+\vect{u}^{(t)} = \sigma(\vect{W}_{u} \vect{h}^{(t-1)} + \vect{U}_{u} \vect{x}^{(t)} + \vect{b}_{u})
+\end{equation}
 
+At the end the new hidden state $\vect{h}^{(t)}$ is defined by the recurrence:
 
-\begin{frame}{Exemplo: TrumpBot\\\url{https://github.com/felipessalvatore/MyTwitterBot}}
-\begin{center}
-\includegraphics[scale=0.24]{images/TrumpBot.png}
-\end{center}
-\end{frame}
-
-
-\begin{frame}{Exemplo: Funk Generator\\ \url{https://github.com/lucasmoura/funk_generator}}
-\begin{quote}
-\centering
-É o dj que tá tocando e não sabe de nada\\ 
-Eu já tô no clima e já tô no meu nome \\
-Cordão de ouro no pescoço eu tô na moda \\
-Com a camisa da \\
-Louis \\
-Vuitton \\
-Pulo da morena que elas gosta\\ 
-E se eu te pego no baile \\
-De captiva de citroen ou de hayabusa\\ 
-Tu viu a 1100 cilindradas \\
-Se eu tô no litoral de cordão de ouro\\ 
-De cordão de ouro no pescoço\\
-\end{quote}
-\end{frame}
-
-\begin{frame}{Seq2seq: diálogo \cite{DBLP:journals/corr/VinyalsL15}}
-\input{tikzfiles/seq2seq_dialog}
-\end{frame}
-
-
-\begin{frame}{Seq2seq: tradução \cite{luzfinger2017}}
-\input{tikzfiles/Translation}
-\end{frame}
-
-\begin{frame}{Exemplo de diálogo \cite{DBLP:journals/corr/VinyalsL15}}
-\begin{center}
-\includegraphics[scale=0.3]{images/exemplo1.png}
-\end{center}
-\end{frame}
-
-
-\section{Métricas}
-
-
-\begin{frame}{Avaliação humana \cite{Lowe:2016}}
-\begin{center}
-\includegraphics[scale=0.4]{images/exemploEval1.png}
-\end{center}
-\end{frame}
-
-
-
-
-\begin{frame}{Avaliação automática: BLEU (bilingual evaluation understudy) \cite{Papineni2001}}
-Essa métrica compara n-gramas (até 4) da resposta candidata com os n-gramas da refência da tradução e conta o numero de acertos. Essa métrica também penaliza traduções muito curtas:
-
-\begin{equation*}
-BLUE(r, \hat{r}) = min \left(1, \frac{len(\hat{r})}{len(r)} \right) \left(\prod_{n=1}^{4} precision_{n}(r, \hat{r}) \right)^{\frac{1}{4}}
-\end{equation*}
-em que $ precision_{n}(r, \hat{r})$ é o número de overlap de $n$ gramas de $r$ e $\hat{r}$ dividido pelo número de todos os $n$-gramas de $\hat{r}$. 
-
-\begin{itemize}
-\item $BLUE(r, \hat{r}) \in [0,1]$
-\end{itemize}
+\begin{equation}
+\vect{h}^{(t)} = \vect{u}^{(t)} \odot \vect{\widetilde{h}}^{(t)} + (1 - \vect{u}^{(t)}) \odot \vect{h}^{(t-1)} 
+\end{equation}
 
 \end{frame}
 
+\begin{frame}{LSTM: Long Short Term Memory}
+\begin{equation}
+\vect{f}^{(t)} = \sigma(\vect{W}_{f} \vect{h}^{(t-1)} + \vect{U}_{f} \vect{x}^{(t)} + \vect{b}_{f})
+\end{equation}
 
-\begin{frame}{Avaliação automática: problemas}
-\begin{center}
-\includegraphics[scale=0.23]{images/weak_corr.png}
-\end{center}
+\begin{equation}
+\vect{i}^{(t)} = \sigma(\vect{W}_{i} \vect{h}^{(t-1)} + \vect{U}_{i} \vect{x}^{(t)} + \vect{b}_{i})
+\end{equation}
 
-"In particular, we show that these metrics (BLEU, METEOR, ROUGE) have only a small positive correlation on the chitchat oriented Twitter dataset, and no correlation at all on the technical Ubuntu Dialogue Corpus." \cite{LiuLSNCP16}
+\begin{equation}
+\vect{o}^{(t)} = \sigma(\vect{W}_{o} \vect{h}^{(t-1)} + \vect{U}_{o} \vect{x}^{(t)} + \vect{b}_{o})
+\end{equation}
+
+Intuitively $\vect{f}^{(t)}$ should control how much informative will be discarded, $\vect{i}^{(t)}$ controls how much information will be updated, and $\vect{o}^{(t)}$ controls how munch each component should be outputted. A candidate cell, $\tilde{\vect{c}}^{(t)}$ is formed:
+
+\begin{equation}
+\tilde{\vect{c}}^{(t)} = tahn(\vect{W} \vect{h}^{(t-1)} + \vect{U} \vect{x}^{(t)} + \vect{b})
+\end{equation}
+
+And a new cell $\vect{c}^{(t)}$ is formed by forgetting some information of the previous cell $\tilde{\vect{c}}^{(t-1)}$ and by adding new values from $\tilde{\vect{c}}^{(t)}$ (scaled by the input gate)
+
+\begin{equation}
+\vect{c}^{(t)} = \vect{f}^{(t)} \odot \vect{c}^{(t-1)} + \vect{i}^{(t)} \odot \tilde{\vect{c}}^{(t)}
+\end{equation}
+\end{frame}
+
+\begin{frame}{Sequence-to-sequence}
+\begin{equation}
+\vect{s} = f_{enc}(\vect{x}^{(n)}, \vect{h}^{(n-1)})
+\end{equation}
+
+\begin{equation}
+\vect{\tilde{h}}^{(t)} = f_{dec}(\vect{y}^{(t)}, \vect{\tilde{h}}^{(t-1)})
+\end{equation}
+
+\begin{equation}
+p(y_t | y_1, \dots, y_{t-1}, x_1, \dots, x_{n}) = softmax(\vect{W}_{s}  \vect{\tilde{h}}^{(t)} + \vect{b}_s)
+\end{equation}
+
 
 \end{frame}
 
-\section{De diálogos abertos para pequenas tarefas}
+\begin{frame}{Attention}
+We will use this matrix as an alignment matrix, i.e., at the end of the training $\vect{a}_{ts}$ should reflect the probability of the source representation $\vect{h}^{(s)}$ be relevant for the output $\hat{y}^{(t)}$. We define $\vect{a}_{ts}$ as
 
-\begin{frame}{bAbI \cite{WestonBCM15}}
-Criar uma série de pequenas tarefas para testar diferentes capacidades de um sistema de diálogo.
+\begin{equation}
+\vect{a}_{ts} = \frac{exp(score(\vect{\tilde{h}}_t,\vect{h}_s))}{\sum_j exp(score(\vect{\tilde{h}}_t,\vect{h}_j))}
+\end{equation}
 
+Where $score$ is a content-based function that can have different implementations: 
 
-\begin{center}
-\includegraphics[scale=0.25]{images/babi.png}
-\end{center}
-\end{frame}
-
-\begin{frame}{Seq2seq}
-\begin{itemize}
-\item $\vect{x}_1, \dots, \vect{x}_n$ sentença de entrada (source)
-\item $\vect{y}_1, \dots, \vect{y}_m$ sentença de saida (target)
-\item $\vect{s} = f_{enc}(\vect{x}_n, \vect{h}_{n-1})$ representação  até a entrada $\vect{x}_n$
-\begin{itemize}
-\item $\vect{h}_0$ iniciado aleatoriamemnte
-\item $\vect{h}_n = \vect{s}$  
-\end{itemize}
-\item $\vect{h}^{\prime}_j = f_{dec}(\vect{y}_j, \vect{h}^{\prime}_{j-1})$ representação saida no instante $j$
-\begin{itemize}
-\item $\vect{h}^{\prime}_0 = \vect{s}$
-\end{itemize}
-
-\item $p(y_j | y_1, \dots, y_{j-1}, x_1, \dots, x_{n}) = softmax(\vect{W}_{s}  \vect{h}^{\prime}_j + \vect{b}_s)$
-
-\item $\hat{y}_j = \argmax p(y_j | y_1, \dots, y_{j-1}, x_1, \dots, x_{n})$
-\end{itemize}
-\end{frame}
-
-\begin{frame}{Seq2seq}
-\input{tikzfiles/seq2seq_dialog}
-\end{frame}
-
-
-\begin{frame}{Modelo de atenção}
- No modelo de atenção vamos contruir um vetor de contexto $\vect{c}_t$ para selecionar as informações na sentença de entrada.\\
- Uma vez costruido $\vect{c}_t$, definimos um estado de atenção
-
-\begin{equation*}
-\vect{\tilde{h}}_t = tahn(\vect{W}_c[\vect{c}_t;\vect{h}_t])
-\end{equation*}
-
-
- e geramos a predição
-
-\begin{equation*}
-p(y_t | y_1, \dots, y_{t-1}, x_1, \dots, x_{n}) = softmax(\vect{W}_{s}  \vect{\tilde{h}}_t + \vect{b}_s)
-\end{equation*}
-\end{frame}
-
-
-\begin{frame}{Como definimos $\vect{c}_t$?}
-Construimos uma matrix de alinhamento $a$ tal que
-
-\begin{itemize}
-\item $a_{ts}$ é a probabilidade da representação de entrada $\vect{h}_s$ ser relevante para a saída $\hat{y}_t$.
-\item[]
-\item $a_{ts} = \frac{exp(score(\vect{\tilde{h}}_t,\vect{h}_s))}{\sum_j exp(score(\vect{\tilde{h}}_t,\vect{h}_j))}$ 
-
-\item $score(\vect{\tilde{h}}_t,\vect{h}_s) = \begin{cases}
+\begin{equation}
+score(\vect{\tilde{h}}_t,\vect{h}_s) = \begin{cases}
 \vect{\tilde{h}}_t ^{\top}\vect{h}_s\\
 \vect{\tilde{h}}_t ^{\top}\vect{W}_a \vect{h}_s\\
 \vect{v}_a ^{\top}tahn(\vect{W}_a[\vect{\tilde{h}}_t;\vect{h}_s])\\
-\end{cases}$ 
-\item[]
-\item $\vect{c}_t$ é uma soma ponderada de todas as representações de entrada: 
-\begin{equation*}
-\vect{c}_t = \sum_{s=1}^{n} a_{ts}\vect{h}_s
-\end{equation*}
-\end{itemize}
+\end{cases}
+\end{equation}
+
+At the end, a global context vector $\vect{c}^{(t)}$ is computed as the weighted average, according to $\vect{a}_t$ over all source states:
+
+\begin{equation}
+\vect{c}^{(t)} = \sum_{s} \vect{a}_{ts}\vect{h}^{(s)}
+\end{equation}
+
+
 \end{frame}
 
+
+\section{Neural network based dialog systems}
+
+\begin{frame}{Seq2seq applied to translation}
+\input{tikzfiles/Translation}
+\end{frame}
+
+\begin{frame}{Seq2seq applied to dialog \cite{DBLP:journals/corr/VinyalsL15}}
+\input{tikzfiles/seq2seq_dialog}
+\end{frame}
 
 
 \begin{frame}{Modelo de memória}
@@ -271,6 +200,74 @@ Construimos uma matrix de alinhamento $a$ tal que
 \item $\vect{\hat{a}}= softmax(\vect{W}(\vect{o}^{k} + \vect{u}^{k}))$
 \end{itemize}
 \end{frame}
+
+\begin{frame}{HRED}
+image
+\end{frame}
+
+
+\begin{frame}{MemNN}
+equations
+\end{frame}
+
+
+
+\section{How to evaluate dialogs?}
+
+
+\begin{frame}{Avaliação humana \cite{Lowe:2016}}
+\begin{center}
+\includegraphics[scale=0.4]{images/exemploEval1.png}
+\end{center}
+\end{frame}
+
+
+
+
+\begin{frame}{BLEU (bilingual evaluation understudy) \cite{Papineni2001}}
+Essa métrica compara n-gramas (até 4) da resposta candidata com os n-gramas da refência da tradução e conta o numero de acertos. Essa métrica também penaliza traduções muito curtas:
+
+\begin{equation*}
+BLUE(r, \hat{r}) = min \left(1, \frac{len(\hat{r})}{len(r)} \right) \left(\prod_{n=1}^{4} precision_{n}(r, \hat{r}) \right)^{\frac{1}{4}}
+\end{equation*}
+em que $ precision_{n}(r, \hat{r})$ é o número de overlap de $n$ gramas de $r$ e $\hat{r}$ dividido pelo número de todos os $n$-gramas de $\hat{r}$. 
+
+\begin{itemize}
+\item $BLUE(r, \hat{r}) \in [0,1]$
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{METEOR}
+equations
+\end{frame}
+
+\begin{frame}{ROUGE}
+equations
+\end{frame}
+
+
+\begin{frame}{Problems}
+\begin{center}
+\includegraphics[scale=0.23]{images/weak_corr.png}
+\end{center}
+
+"In particular, we show that these metrics (BLEU, METEOR, ROUGE) have only a small positive correlation on the chitchat oriented Twitter dataset, and no correlation at all on the technical Ubuntu Dialogue Corpus." \cite{LiuLSNCP16}
+
+\end{frame}
+
+\section{De diálogos abertos para pequenas tarefas}
+
+\begin{frame}{bAbI \cite{WestonBCM15}}
+Criar uma série de pequenas tarefas para testar diferentes capacidades de um sistema de diálogo.
+
+
+\begin{center}
+\includegraphics[scale=0.25]{images/babi.png}
+\end{center}
+\end{frame}
+
+
 
 \begin{frame}{ParlAI \\ \url{https://github.com/facebookresearch/ParlAI}}
 
@@ -355,99 +352,6 @@ What color is $c$? \alert{A: $C^j$}\\
 \end{frame}
 
 
-\begin{frame}{SICK (Sentences Involving Compositional Knowledge) \cite{Marelli14}}
-
-\begin{center}
-\includegraphics[scale=0.25]{images/sick.png}
-\end{center}
-
-\end{frame}
-
-\begin{frame}{Quora question pairs \cite{quora}}
-
-
-Who creates bitcoins?\\
-Who invented Bitcoin?\\
-Are the above questions duplicate? \alert{A: no}\\
-
-
-How aeroplanes fly?\\
-How do airplanes fly?\\
-Are the above questions duplicate? \alert{A: yes}\\
-
-
-
-What actually is brexit?\\
-What is brexit?\\
-Are the above questions duplicate? \alert{A: yes}\\
-
-
-hat is my ethnicity?\\
-What does ethnicity mean?\\
-Are the above questions duplicate? \alert{A: no}\\
-
-\end{frame}
-
-
-\begin{frame}{DialogGym}
-
-\begin{center}
-\includegraphics[scale=0.58]{images/DGred2.png}
-\end{center}
-
-\url{https://github.com/felipessalvatore/DialogGym}
-
-\end{frame}
-
-
-\begin{frame}{Um novo conjunto de tarefas}
-\begin{itemize}
-\item \textbf{Task 1: entailment prediction} Given two sentences $p$ and $q$ the agent is asked to detect a basic entailment relation between them, i.e., the agent should respond if $p$ implies $q$, if $p$ contradicts $q$ or if $p$ is neutral to $q$. For example, the sentences "\textit{A man is thinking}" and "\textit{There is no man thinking}" is given to the agent, he needs to detect the quantifier to spot the contradiction between these two informations.
-\item \textbf{Task 2: similarity prediction} The agent is questioned to indicate how related are the meaning of two sentences, e.g., "\textit{A man is reading the email. Someone is reading the email. Are the sentences above related?}". There are only 4 possible answers: "not related", "somewhat related", "related", "strongly related". 
-\item \textbf{Task 3: paraphrase prediction} The agent is asked (a yes/no question) to identify if two given questions express the same meaning using different words, e.g., "\textit{Who was Pele? Who is Pele? Are the above questions duplicate?}".
-\end{itemize}
-\end{frame}
-
-\begin{frame}{Primeiros resultados}
-\begin{center}
-\includegraphics[scale=0.28]{images/both_semantic_tasks.png}
-\end{center}
-\end{frame}
-
-\begin{frame}{Podemos melhorar os resultados para as tarefas específicas}
-
-\begin{center}
-\includegraphics[scale=0.21]{images/features_sick.png}
-\end{center}
-
-Por exemplo, em \cite{S14-2055} os autores conseguiram $84.6\%$ de accurácia no SICK.\\
-
-\alert{Mas não queremos "tunar" um modelo para uma tarefa específica!} 
-
-\end{frame}
-
-
-\begin{frame}{Olhando as perguntas geradas pelo SICK}
-
-The parrot is talking into the microphone\\
-The parrot is speaking\\
-What is the semantic relation? \alert{A: entailment}\\
-
-
-There is no man cutting tomatoes\\
-A man is cutting tomatoes\\
-What is the semantic relation? \alert{A: contradiction}\\
-
-
-Paper is being cut with scissors\\
-Someone is cutting some paper with scissors\\
-What is the semantic relation? \alert{A: entailment}\\
-
-
-An elder man is sitting on a bench and is angry\\
-An elderly man is sitting on a bench\\
-What is the semantic relation? \alert{A: entailment}\\
-\end{frame}
 
 
 \begin{frame}{Entailment-QA}
@@ -556,9 +460,41 @@ What is the semantic relation? \alert{A: entailment}\\
 \end{itemize}
 \end{frame}
 
+\begin{frame}{Entailment-QA: task proxy}
+
+SICK (Sentences Involving Compositional Knowledge) \cite{Marelli14}
+
+\begin{center}
+\includegraphics[scale=0.25]{images/sick.png}
+\end{center}
+
+\end{frame}
 
 
-\begin{frame}{Resultados até agora}
+\begin{frame}{Entailment-QA: task proxy}
+
+\begin{itemize} 
+\item[] There is no dog leaping in the air
+\item[] A dog is leaping high in the air and another is watching
+\item[] What is the semantic relation? \alert{A: contradiction}
+\end{itemize}
+
+\begin{itemize} 
+\item[] A man is exercising
+\item[] A baby is laughing
+\item[] What is the semantic relation? \alert{A: neutral}
+\end{itemize}
+
+\begin{itemize} 
+\item[] Some dogs are playing in a river
+\item[] Some dogs are playing in a stream
+\item[] What is the semantic relation? \alert{A: entailment}
+\end{itemize}
+\end{frame}
+
+
+
+\begin{frame}{Preliminary Results}
 \begin{center}
 \includegraphics[scale=0.42]{images/comparative_results.png}
 \end{center}
@@ -566,21 +502,21 @@ What is the semantic relation? \alert{A: entailment}\\
 
 
 
-\begin{frame}{Resultados até agora}
+\begin{frame}{Preliminary Results}
 \begin{center}
 \includegraphics[scale=0.28]{images/training_acc_EntailQA2_mem.png}
 \end{center}
 \end{frame}
 
 
-\begin{frame}{Resultados até agora}
+\begin{frame}{Preliminary Results}
 \begin{center}
 \includegraphics[scale=0.42]{images/cm_mem_EntailQA2.png}
 \end{center}
 \end{frame}
 
 
-\begin{frame}{Próximos passos}
+\begin{frame}{Future Steps}
 \begin{itemize}
 
 \item Terminar as tarefas
@@ -589,9 +525,14 @@ What is the semantic relation? \alert{A: entailment}\\
 
 \item Explorar novos modelos
 \end{itemize}
-
-
 \end{frame}
+
+
+\begin{frame}{Schedule}
+image
+\end{frame}
+
+
 
 \begin{frame}[allowframebreaks]{Referências}
 

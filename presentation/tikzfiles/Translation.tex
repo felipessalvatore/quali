@@ -76,16 +76,16 @@
 \path[tedge] (ht6) -- (ht7);
 
 %  timestep decoder 1
-\rnndecoderSimpl{(1)}{SELECT}{tt1}{above=190pt of ht3};
+\rnndecoderSimpl{(1)}{$<eos>$}{tt1}{above=190pt of ht3};
 
 %  timestep decoder 2
-\rnndecoderSimpl{(2)}{?city}{tt2}{right=40pt of htt1};
+\rnndecoderSimpl{(2)}{Quais}{tt2}{right=40pt of htt1};
 
 %  timestep decoder 3
-\rnndecoderSimpl{(3)}{$\{$}{tt3}{right=40pt of htt2};
+\rnndecoderSimpl{(3)}{são}{tt3}{right=40pt of htt2};
 
 %  timestep decoder 4
-\rnndecoder{(4)}{?Texas}{tt4}{right=40pt of htt3};
+\rnndecoder{(4)}{as}{tt4}{right=40pt of htt3};
 
 
 % % state transfers encoder
@@ -95,7 +95,7 @@
 
 
 % text
-\node[textonly, left=40pt of yhattt4] (result) {{\Large $P(x^{(5)}| \text{SELECT, ?city, } \{ \text{ , ?Texas, } \vect{h}^{(7)})$}};
+\node[textonly, left=40pt of yhattt4] (result) {{\Large $P(x^{(5)}|  <eos>\text{, Quais, são, as }, \vect{h}^{(7)})$}};
 
 % Arrow to result
 \draw[->, line width=1mm] (yhattt4) to  (result.east);
