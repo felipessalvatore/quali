@@ -19,4 +19,4 @@ $(BASE_NAME).pdf: $(BASE_NAME).tex
 	cp $(BUILD_DIR)/$(BASE_NAME).pdf $(PDF_NAME)
 
 clean:
-	rm -rf build $(PDF_NAME)
+	rm -rf build $(PDF_NAME) & mv $(PDF_NAME) ./pdf 
