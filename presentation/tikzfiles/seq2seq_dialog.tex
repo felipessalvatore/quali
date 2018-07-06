@@ -14,7 +14,7 @@
 \newcommand{\rnndecoder}[4]{
 
 % operations
-\node[state, minimum size=40pt,#4] (h#3) {${\vect{h}^{\prime}}^{#1}$};
+\node[state, minimum size=40pt,#4] (h#3) {$\vect{\tilde{h}}^{#1}$};
 \node[output, minimum size=40pt, above=30pt of h#3] (yhat#3){$\hat{\vect{y}}^{#1}$};
 \node[op, minimum size=40pt,below=30pt of h#3] (x#3) {$\vect{x}^{#1}$};
 \node[textonly, below=0.1pt of x#3] {{\Large#2}};
@@ -28,7 +28,7 @@
 \newcommand{\rnndecoderSimpl}[4]{
 
 % operations
-\node[state, minimum size=40pt,#4] (h#3) {${\vect{h}^{\prime}}^{#1}$};
+\node[state, minimum size=40pt,#4] (h#3) {$\vect{\tilde{h}}^{#1}$};
 \node[op, minimum size=40pt,below=30pt of h#3] (x#3) {$\vect{x}^{#1}$};
 \node[textonly, below=0.1pt of x#3] {{\Large#2}};
 

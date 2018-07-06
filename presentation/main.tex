@@ -20,28 +20,15 @@
 \maketitle
 
 
-\begin{frame}{Problema de pesquisa}
-falar do que vou pesquisar
+\begin{frame}{Research problem}
+\begin{itemize}
+\item Create a set of tasks that incorporate logic reasoning to boost performance of the current dialog agents.
+\item Perform a stress test in the existing \textit{neural network based end-to-end dialog systems}.
+\item Integrate linguistic reasoning with visual references to create a new set of visual question answering (VQA) tasks.
+\item Define new models to achieve better results in the tasks proposed above. 
+\end{itemize}
 \end{frame}
 
-
-% \begin{frame}{Sistemas de diálogo}
-% \begin{itemize}
-% \item \alert{Goal-driven systems}:
-% \begin{itemize}
-% \item serviços de suporte técnico
-% \item marketing      
-% \item sistemas de reserva
-% \item sistemas de informação
-% \end{itemize}
-
-% \vspace{0.4cm}
-% \item \alert{Non-goal-driven systems}
-% \begin{itemize}
-% \item Conversas livres (sem fim específico)
-% \end{itemize}
-% \end{itemize}
-% \end{frame}
 
 \section{Background}
 
@@ -51,7 +38,7 @@ We call \alert{language model} a probability distribution over sequences of toke
 P(x_1,x_2,x_3,x_4) = p
 \end{equation}
 
-Since \cite{Mikolov11}, we can use a \alert{Recurrent Neural Network (RNN)} to estimate the probability distribution   \\
+Since \cite{Mikolov11}, we use a \alert{Recurrent Neural Network (RNN)} to estimate the probability distribution   \\
 
 \begin{equation}
 P(x_{n} = \text{word}_{j^{*}} | x_{1}, \dots ,x_{n-1})
@@ -71,8 +58,6 @@ for any $(n-1)$-sequence of words $x_{1}, \dots ,x_{n-1}$.
 \vect{\widetilde{h}}^{(t)} = tahn(\vect{W} (\vect{h}^{(t-1)} \odot  \vect{r}^{(t)}) + \vect{U} \vect{x}^{(t)} + \vect{b})
 \end{equation}
 
-where $\vect{r}^{(t)}$ is a vector with values in $[0, 1]$ called a \textit{reset gate}, i.e.,  a vector that at each entry outputs the probability of reseting the  corresponding entry in the previous hidden state $\vect{h}^{(t-1)}$. Together with $\vect{r}^{(t)}$ we define an \textit{update gate}, $\vect{u}^{(t)}$. It is also a vector with values in $[0, 1]$. Intuitively we can say that this vector decides how much on each dimension we will use the candidate update. Both $\vect{r}^{(t)}$ and $\vect{u}^{(t)}$ are defined by $\vect{h}^{(t-1)}$ and $\vect{x}^{(t)}$; they also have specific parameters:
-
 \begin{equation}
 \vect{r}^{(t)} = \sigma(\vect{W}_{r} \vect{h}^{(t-1)} + \vect{U}_{r} \vect{x}^{(t)} + \vect{b}_{r})
 \end{equation}
@@ -81,8 +66,6 @@ where $\vect{r}^{(t)}$ is a vector with values in $[0, 1]$ called a \textit{rese
 \begin{equation}
 \vect{u}^{(t)} = \sigma(\vect{W}_{u} \vect{h}^{(t-1)} + \vect{U}_{u} \vect{x}^{(t)} + \vect{b}_{u})
 \end{equation}
-
-At the end the new hidden state $\vect{h}^{(t)}$ is defined by the recurrence:
 
 \begin{equation}
 \vect{h}^{(t)} = \vect{u}^{(t)} \odot \vect{\widetilde{h}}^{(t)} + (1 - \vect{u}^{(t)}) \odot \vect{h}^{(t-1)} 
@@ -103,20 +86,30 @@ At the end the new hidden state $\vect{h}^{(t)}$ is defined by the recurrence:
 \vect{o}^{(t)} = \sigma(\vect{W}_{o} \vect{h}^{(t-1)} + \vect{U}_{o} \vect{x}^{(t)} + \vect{b}_{o})
 \end{equation}
 
-Intuitively $\vect{f}^{(t)}$ should control how much informative will be discarded, $\vect{i}^{(t)}$ controls how much information will be updated, and $\vect{o}^{(t)}$ controls how munch each component should be outputted. A candidate cell, $\tilde{\vect{c}}^{(t)}$ is formed:
 
 \begin{equation}
 \tilde{\vect{c}}^{(t)} = tahn(\vect{W} \vect{h}^{(t-1)} + \vect{U} \vect{x}^{(t)} + \vect{b})
 \end{equation}
 
-And a new cell $\vect{c}^{(t)}$ is formed by forgetting some information of the previous cell $\tilde{\vect{c}}^{(t-1)}$ and by adding new values from $\tilde{\vect{c}}^{(t)}$ (scaled by the input gate)
-
 \begin{equation}
 \vect{c}^{(t)} = \vect{f}^{(t)} \odot \vect{c}^{(t-1)} + \vect{i}^{(t)} \odot \tilde{\vect{c}}^{(t)}
 \end{equation}
+
+\begin{equation}
+\vect{h}^{(t)} = \vect{o}^{(t)} \odot tanh(\vect{c}^{(t)})
+\end{equation}
+
 \end{frame}
 
 \begin{frame}{Sequence-to-sequence}
+\begin{itemize}
+\item $\vect{x}^{(1)}, \dots, \vect{x}^{(n)}$, source sentence
+\item $\vect{y}^{(1)}, \dots, \vect{y}^{(m)}$, target sentence
+\item $f_{enc}$ (the \textit{encoder}), a RNN
+\item $f_{dec}$ (the \textit{encoder}), a language model
+\end{itemize}
+
+
 \begin{equation}
 \vect{s} = f_{enc}(\vect{x}^{(n)}, \vect{h}^{(n-1)})
 \end{equation}
@@ -133,28 +126,30 @@ p(y_t | y_1, \dots, y_{t-1}, x_1, \dots, x_{n}) = softmax(\vect{W}_{s}  \vect{\t
 \end{frame}
 
 \begin{frame}{Attention}
-We will use this matrix as an alignment matrix, i.e., at the end of the training $\vect{a}_{ts}$ should reflect the probability of the source representation $\vect{h}^{(s)}$ be relevant for the output $\hat{y}^{(t)}$. We define $\vect{a}_{ts}$ as
 
 \begin{equation}
-\vect{a}_{ts} = \frac{exp(score(\vect{\tilde{h}}_t,\vect{h}_s))}{\sum_j exp(score(\vect{\tilde{h}}_t,\vect{h}_j))}
+\vect{a}_{ts} = \frac{exp(score(\vect{\tilde{h}}^{(t)},\vect{h}^{(s)}))}{\sum_j exp(score(\vect{\tilde{h}}^{(t)},\vect{h}^{(j)}))}
 \end{equation}
 
-Where $score$ is a content-based function that can have different implementations: 
-
 \begin{equation}
-score(\vect{\tilde{h}}_t,\vect{h}_s) = \begin{cases}
-\vect{\tilde{h}}_t ^{\top}\vect{h}_s\\
-\vect{\tilde{h}}_t ^{\top}\vect{W}_a \vect{h}_s\\
-\vect{v}_a ^{\top}tahn(\vect{W}_a[\vect{\tilde{h}}_t;\vect{h}_s])\\
+score(\vect{\tilde{h}}^{(t)},\vect{h}^{(s)}) = \begin{cases}
+{\vect{\tilde{h}}^{(t)}} .^{\top} \vect{h}^{(s)}\\
+\vect{\tilde{h}}^{(t)} .^{\top}\vect{W}_a \vect{h}^{(s)}\\
+\vect{v}_a ^{\top}tahn(\vect{W}_a[\vect{\tilde{h}}^{(t)};\vect{h}^{(s)}])\\
 \end{cases}
 \end{equation}
-
-At the end, a global context vector $\vect{c}^{(t)}$ is computed as the weighted average, according to $\vect{a}_t$ over all source states:
 
 \begin{equation}
 \vect{c}^{(t)} = \sum_{s} \vect{a}_{ts}\vect{h}^{(s)}
 \end{equation}
 
+\begin{equation}
+\vect{\tilde{h}}^{(t)}_{out} = tahn(\vect{W}_c[\vect{c}^{(t)};\vect{h}^{(t)}])
+\end{equation}
+
+\begin{equation}
+p(y_t | y_1, \dots, y_{t-1}, x_1, \dots, x_{n}) = softmax(\vect{W}_{s}  \vect{\tilde{h}}^{(t)}_{out} + \vect{b}_s)
+\end{equation}
 
 \end{frame}
 
@@ -170,66 +165,23 @@ At the end, a global context vector $\vect{c}^{(t)}$ is computed as the weighted
 \end{frame}
 
 
-\begin{frame}{Modelo de memória}
-\begin{itemize}
-\item $\vect{s}_1, \dots, \vect{s}_n$ sentenças de contexto
-\item $\vect{q}$ pergunta
-\item $\vect{a}$ resposta
-\item $\{ \vect{s}_i\} \rightarrow^{\vect{A}} \{ \vect{m}_i\}$  (vetores de memôria)
-\item $\vect{q} \rightarrow^{\vect{B}} \vect{u}$  (estado interno)
-\item $\{ p_i\} = \{ softmax(\vect{u}^{T}\vect{m}_i)\}$  ("match" entre $\vect{m}_i$ e $\vect{u}$)
-\item $\{ \vect{s}_i\} \rightarrow^{\vect{C}} \{ \vect{c}_i\}$
-\item $\vect{o}= \sum_{i} p_i \vect{c}_i$
-\item $\vect{\hat{a}}= softmax(\vect{W}(\vect{o} + \vect{u}))$
-\end{itemize}
-\end{frame}
-
-
-\begin{frame}{ Podemos ter $k$ camadas e memória (hops)}
-\begin{itemize}
-\item $\vect{u}^{k} = \vect{u}^{k-1} + \vect{o}^{k-1}$
-\item[]
-\item $\{ {\vect{s}^{k}}_i\} \rightarrow^{{vect{A}^{k}}} \{ {\vect{m}^{k}}_i\}$
-\item[]
-\item $\{ {\vect{s}^{k}}_i\} \rightarrow^{{vect{C}^{k}}} \{ {\vect{c}^{k}}_i\}$
-\item[]
-\item $\{{p^{k}}_i\} = \{ softmax({\vect{u}^{k}}^{\top} {\vect{m}^{k}_{i}})\}$
-\item[]
-\item $\vect{o}^{k}= \sum_{i} {p^{k}}_i {\vect{c}^{k}}_i$
-\item[]
-\item $\vect{\hat{a}}= softmax(\vect{W}(\vect{o}^{k} + \vect{u}^{k}))$
-\end{itemize}
-\end{frame}
-
 \begin{frame}{MemNN}
-The memory model is defined by $k$ memory layers, each layer is compose of the following parts:
-
-
 \begin{itemize}
-\item $\{ {\vect{m}^{k}}_i\}$ is an $n$-sequence of \textit{memory vectors}. Where $i = 1, \dots, n$ and $\vect{m}^{k}_i = \sum_{j} \vect{A}^{k}x_{i,j}$.
-\item  $\vect{u}^{k}$ is the \textit{input vector}, where
-\begin{equation}
-\vect{u}^{k}=
-\begin{cases}
-\sum_{j} \vect{B}^{k}w_{j} & \text{if } k=1, \\
-\vect{u}^{k-1} + \vect{o}^{k-1}  & \text{otherwise}\\
-\end{cases}
-\end{equation}
-\item $\vect{p}^{k} \in \mathbb{R}^{n}$ is the \textit{match between the input vector} $\vect{u}^{k}$ \textit{and each memory vector} ${\vect{m}^{k}}_i$. $\vect{p}^{k}$ is defined as
-\begin{equation}
-{\vect{p}^{k}}_i = softmax({\vect{u}^{k}}^{\top} {\vect{m}^{k}}_i) 
-\end{equation}
-\item $\{ {\vect{c}^{k}}_i\}$ is another representation of the context $U_1, ..., U_n$ defined by another embedding matrix $\vect{C}$, i.e., $\vect{c}^{k}_i = \sum_{j} \vect{C}^{k}x_{i,j}$.
-\item $\vect{o}^{k}$ is the memory layer's  \textit{output}. It is a sum over the transformed context $\{ {\vect{c}^{k}}_i\}$ weighted by the probability vector $\vect{p}^{k}$ defined by the input $\vect{u}^{k}$, i.e.,  $\vect{o}^{k}= \sum_{i} {\vect{p}^{k}}_i {\vect{c}^{k}}_i$.
+\item $U_1, \dots, U_n$ context
+\item $q$ question
+\item $a$ answer
 \end{itemize}
 
-Note that each memory layer $k$ is defined by three embedding matrices $\vect{A}^{k}, \vect{B}^{k}, \vect{C}^{k} \in \mathbb{R}^{d,V}$ where $d$, the size of the embedding, is a hyperparameter.
+We have $k = 1, \dots, K$ memory layers: 
 
-After all the $K$ memory layers have computed their output, the model's prediction is a probability distribution over all the tokens in the vocabulary, remember here the answer is composed of one word only:
-\begin{equation}
-\vect{\hat{a}}= softmax(\vect{W}(\vect{o}^{K}))
-\end{equation}
-
+\begin{itemize}
+\item $\{ {\vect{m}^{(k)}}_i\}$, memory vectors
+\item $\vect{u}^{(k)}$, input vector
+\item $\vect{p}^{(k)}$,  match between $\vect{u}^{(k)}$ and each $\vect{m}^{(k)}_i$
+\item $\{ {\vect{c}^{(k)}}_i\}$, another representation of the context $U_1, ..., U_n$
+\item $\vect{o}^{(k)}$, output.
+\item $\vect{\hat{a}}= softmax(\vect{W}(\vect{o}^{K}))$, candidate answer
+\end{itemize}
 \end{frame}
 
 
@@ -250,7 +202,7 @@ After all the $K$ memory layers have computed their output, the model's predicti
 
 \end{frame}
 
-\begin{frame}{BLEU (bilingual evaluation understudy) \cite{Papineni2001}}
+\begin{frame}{BLEU (bilingual evaluation understudy)}
 \begin{equation}
 P_n = \frac{\text{number of } n\text{-grams in both } \hat{y} \text{ and } y}{\text{number of } n\text{-grams appearing in } \hat{y}}
 \end{equation}    
@@ -271,7 +223,7 @@ BLEU = BP \; \exp \left(\frac{1}{N}  \sum_{n=1}^{N} \log P_n \right)
 \end{frame}
 
 
-\begin{frame}{METEOR (Metric for Evaluation of Translation with Explicit ORdering) \cite{Lavie}}
+\begin{frame}{METEOR (Metric for Evaluation of Translation with Explicit ORdering)}
 \begin{equation}
 P = \frac{\text{number of } \text{unigrams in both } \hat{y} \text{ and } y}{\text{number of } \text{unigrams appearing in } \hat{y}}
 \end{equation}    
@@ -291,7 +243,7 @@ METEOR = F_{mean} (1 - penalty)
 \end{equation}
 \end{frame}
 
-\begin{frame}{ROUGE (Recall Oriented Understudy for Gisting Evaluation) \cite{Lin}}
+\begin{frame}{ROUGE (Recall Oriented Understudy for Gisting Evaluation)}
 \begin{equation}
 P_{lcs} = \frac{lcs(\hat{y}, y)}{len(\hat{y})}
 \end{equation}    
@@ -504,11 +456,13 @@ What color is $c$? \alert{A: $C^j$}\\
 \item $\forall x Px, Pa$ 
 \item $Pa, \exists x Px$ 
 \end{itemize}
+\item []
 \item \alert{Contradiction}
 \begin{itemize}
 \item $\forall x Px, \lnot Pa$ 
 \item $\forall x Px, \exists x \lnot Px$ 
 \end{itemize}
+\item []
 \item \alert{Neutral}
 \begin{itemize}
 \item $Pa,Qa$ 
@@ -597,13 +551,12 @@ SICK (Sentences Involving Compositional Knowledge) \cite{Marelli14}
 
 \begin{frame}{Future Steps}
 \begin{itemize}
-\item Apply regularization strategies on the available models to overcome the reported overfitting problem. 
-\item Finish the Entailment-QA corpus to have a fine grain analysis of the result that we are seeing on the SICK corpus.
-\item Explore the different extensions for all mentioned models.
-\item Explore new models not mentioned here, like Dynamic Memory Networks \cite{KumarISBEPOGS15} and the models using the Memory Attention and Composition (MAC) cell \cite{Manning18}.
+\item Try to overcome the reported overfitting problem. 
+\item Finish the Entailment-QA corpus.
+\item Explore new models not mentioned here, like \alert{Dynamic Memory Networks} \cite{KumarISBEPOGS15} and  \alert{Memory Attention and Composition (MAC) cell} \cite{Manning18}.
 \item Create a visual version of the Entailment-QA to test logical inference with images.
-\item There is a different literature that frames the dialog problem as an MDP (Markovian Decision Process) and a POMDP (Partially Observable Markovian Decision Process) applying different techniques of reinforcement learning (a recent example is \cite{Li:2016}). It is fruitful to investigate if these techniques can help our research.
-\item One of the main focused here is model comparison. It would be fruitful if we could use the available literature  on the theory of comparing models (e.g., \cite{BenavoliCDZ17}) to refine our analysis.
+\item Check the reinforcement learning on dialog.
+\item Review the literature on the theory of comparing models \cite{BenavoliCDZ17}.
 \end{itemize}
 \end{frame}
 
