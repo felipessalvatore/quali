@@ -154,6 +154,44 @@ p(y_t | y_1, \dots, y_{t-1}, x_1, \dots, x_{n}) = softmax(\vect{W}_{s}  \vect{\t
 \end{frame}
 
 
+
+
+\begin{frame}{Attention general formulation}
+
+\begin{equation}
+f(\vect{Q},\vect{K}_i) = \begin{cases}
+\vect{Q} .^{\top} \vect{K}_i\;\;\;\; \text{dot}\\
+\vect{Q} .^{\top}\vect{W}_{a} \vect{K}_i\;\;\;\; \text{general}\\
+\vect{W}_{a}[\vect{Q};\vect{K}_i] \;\;\;\; \text{concat}\\
+\vect{v}_{a}.^{\top} tahn(\vect{W}_{a}\vect{Q} + \vect{U}_{a}\vect{K}_i)\;\;\;\; \text{perceptron}\\
+\end{cases}
+\end{equation}
+
+% softmax figure
+\begin{figure}[ht!]
+\centering
+\scalebox{1.1}{
+\begin{tikzpicture}[auto]
+\node[textonly] (logits) {$\begin{bmatrix}f(\vect{Q},\vect{K}_1)\\f(\vect{Q},\vect{K}_2)\\\vdots\\f(\vect{Q},\vect{K}_n)\end{bmatrix}$};
+\node[textonly, right=60pt of logits] (softmax) {$\begin{bmatrix}a_1\\a_2\\\vdots\\a_n\end{bmatrix}$};
+\path[tedge] (logits) edge node[above=1pt] {{\Large softmax}} (softmax);
+\end{tikzpicture}
+}
+\end{figure}
+
+\begin{equation}
+Attention(\vect{Q},\vect{K}, \vect{V})= \sum_{i} \vect{a}_{i}\vect{V}_i
+\end{equation}
+
+
+\end{frame}
+
+
+
+
+
+
+
 \section{Neural network based dialog systems}
 
 \begin{frame}{Seq2seq applied to translation}
